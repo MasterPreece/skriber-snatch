@@ -18,7 +18,7 @@ const GameBoard = () => {
   const [playerPos, setPlayerPos] = useState<Position>({ x: 50, y: 50 });
   const [letters, setLetters] = useState<LetterState[]>([]);
   const [isWinner, setIsWinner] = useState(false);
-  const speed = 15; // Increased speed from 5 to 15
+  const speed = 15;
 
   // Initialize letters
   useEffect(() => {
@@ -26,8 +26,8 @@ const GameBoard = () => {
     const newLetters = chars.map((char) => ({
       char,
       position: {
-        x: Math.floor(Math.random() * (window.innerWidth * 0.25 - 100)),
-        y: Math.floor(Math.random() * (window.innerHeight * 0.25 - 100)),
+        x: Math.floor(Math.random() * 300),  // Fixed width boundary
+        y: Math.floor(Math.random() * 300),  // Fixed height boundary
       },
       collected: false,
     }));
@@ -36,8 +36,8 @@ const GameBoard = () => {
 
   const generateNewLetterPosition = useCallback(() => {
     return {
-      x: Math.floor(Math.random() * (window.innerWidth * 0.25 - 100)),
-      y: Math.floor(Math.random() * (window.innerHeight * 0.25 - 100)),
+      x: Math.floor(Math.random() * 300),  // Fixed width boundary
+      y: Math.floor(Math.random() * 300),  // Fixed height boundary
     };
   }, []);
 
@@ -73,8 +73,8 @@ const GameBoard = () => {
     const handleKeyPress = (e: KeyboardEvent) => {
       setPlayerPos((prev) => {
         let newPos = { ...prev };
-        const maxWidth = window.innerWidth * 0.25;
-        const maxHeight = window.innerHeight * 0.25;
+        const maxWidth = 300;   // Fixed width boundary
+        const maxHeight = 300;  // Fixed height boundary
 
         switch (e.key) {
           case "ArrowUp":
@@ -103,25 +103,27 @@ const GameBoard = () => {
   }, [playerPos, checkCollision]);
 
   return (
-    <div className="relative w-1/4 h-1/4 bg-gradient-to-b from-[#e6e9f0] to-[#eef1f5] overflow-hidden mx-auto">
-      <div className="absolute top-4 left-4 text-2xl font-bold text-gray-700">
-        {letters.filter((l) => l.collected).length}/{letters.length}
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="relative w-[400px] h-[400px] bg-gradient-to-b from-[#e6e9f0] to-[#eef1f5] overflow-hidden border border-gray-200 rounded-lg shadow-lg">
+        <div className="absolute top-4 left-4 text-2xl font-bold text-gray-700">
+          {letters.filter((l) => l.collected).length}/{letters.length}
+        </div>
+        {!isWinner && (
+          <>
+            <Player position={playerPos} />
+            {letters.map((letter, index) => (
+              !letter.collected && (
+                <Letter
+                  key={index}
+                  position={letter.position}
+                  char={letter.char}
+                />
+              )
+            ))}
+          </>
+        )}
+        {isWinner && <WinnerText />}
       </div>
-      {!isWinner && (
-        <>
-          <Player position={playerPos} />
-          {letters.map((letter, index) => (
-            !letter.collected && (
-              <Letter
-                key={index}
-                position={letter.position}
-                char={letter.char}
-              />
-            )
-          ))}
-        </>
-      )}
-      {isWinner && <WinnerText />}
     </div>
   );
 };
