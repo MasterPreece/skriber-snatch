@@ -6,12 +6,15 @@ interface LetterProps {
     y: number;
   };
   char: string;
+  isNext: boolean;
 }
 
-const Letter = ({ position, char }: LetterProps) => {
+const Letter = ({ position, char, isNext }: LetterProps) => {
   return (
     <div
-      className="absolute text-3xl font-bold text-letter"
+      className={`absolute text-3xl font-bold transition-all duration-200 ${
+        isNext ? "text-green-500 scale-110 animate-bounce" : "text-letter"
+      }`}
       style={{
         transform: `translate(${position.x}px, ${position.y}px)`,
       }}
