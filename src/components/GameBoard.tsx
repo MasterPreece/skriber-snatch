@@ -21,7 +21,7 @@ interface BadDotState {
 }
 
 const GameBoard = () => {
-  const [playerPos, setPlayerPos] = useState<Position>({ x: 50, y: 50 });
+  const [playerPos, setPlayerPos] = useState<Position>({ x: 30, y: 30 }); // Start in top-left
   const [letters, setLetters] = useState<LetterState[]>([]);
   const [isWinner, setIsWinner] = useState(false);
   const [timeLeft, setTimeLeft] = useState(30);
@@ -43,32 +43,42 @@ const GameBoard = () => {
       collected: false,
     }));
 
-    // Initialize 3 bad dots on the opposite side (bottom right) of the screen
+    // Define quadrants (excluding top-left which is for player)
+    const quadrants = [
+      { minX: 150, maxX: 300, minY: 0, maxY: 150 },    // top-right
+      { minX: 0, maxX: 150, minY: 150, maxY: 300 },    // bottom-left
+      { minX: 150, maxX: 300, minY: 150, maxY: 300 },  // bottom-right
+    ];
+
     const newBadDots: BadDotState[] = [];
-    const minDistance = 50; // Minimum distance between bad dots
+    const minDistance = 50;
 
-    while (newBadDots.length < 3) {
-      const newPosition = {
-        x: Math.floor(Math.random() * 100) + 200, // Random position between 200-300
-        y: Math.floor(Math.random() * 100) + 200, // Random position between 200-300
-      };
+    // Place one bad dot in each remaining quadrant
+    quadrants.forEach(quadrant => {
+      let placed = false;
+      while (!placed) {
+        const newPosition = {
+          x: Math.floor(Math.random() * (quadrant.maxX - quadrant.minX)) + quadrant.minX,
+          y: Math.floor(Math.random() * (quadrant.maxY - quadrant.minY)) + quadrant.minY,
+        };
 
-      // Check distance from all existing bad dots
-      const isTooClose = newBadDots.some(dot => {
-        const dx = dot.position.x - newPosition.x;
-        const dy = dot.position.y - newPosition.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        return distance < minDistance;
-      });
+        const isTooClose = newBadDots.some(dot => {
+          const dx = dot.position.x - newPosition.x;
+          const dy = dot.position.y - newPosition.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          return distance < minDistance;
+        });
 
-      if (!isTooClose) {
-        newBadDots.push({ position: newPosition });
+        if (!isTooClose) {
+          newBadDots.push({ position: newPosition });
+          placed = true;
+        }
       }
-    }
+    });
 
     setLetters(newLetters);
     setBadDots(newBadDots);
-    setPlayerPos({ x: 50, y: 50 });
+    setPlayerPos({ x: 30, y: 30 });
     setTimeLeft(30);
     setScore(0);
     setIsWinner(false);
