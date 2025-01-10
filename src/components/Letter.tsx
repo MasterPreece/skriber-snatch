@@ -5,9 +5,10 @@ interface LetterProps {
     x: number;
     y: number;
   };
+  char: string;
 }
 
-const Letter = ({ position }: LetterProps) => {
+const Letter = ({ position, char }: LetterProps) => {
   return (
     <div
       className="absolute text-3xl font-bold text-letter"
@@ -15,7 +16,7 @@ const Letter = ({ position }: LetterProps) => {
         transform: `translate(${position.x}px, ${position.y}px)`,
       }}
     >
-      S
+      {char}
     </div>
   );
 };

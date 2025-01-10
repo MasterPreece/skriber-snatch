@@ -8,51 +8,86 @@ interface Position {
   y: number;
 }
 
+interface LetterState {
+  char: string;
+  position: Position;
+  collected: boolean;
+}
+
 const GameBoard = () => {
   const [playerPos, setPlayerPos] = useState<Position>({ x: 50, y: 50 });
-  const [letterPos, setLetterPos] = useState<Position>({ x: 200, y: 200 });
-  const [score, setScore] = useState(0);
+  const [letters, setLetters] = useState<LetterState[]>([]);
   const [isWinner, setIsWinner] = useState(false);
-  const speed = 5;
+  const speed = 15; // Increased speed from 5 to 15
+
+  // Initialize letters
+  useEffect(() => {
+    const chars = ["S", "K", "R", "I", "B", "E", "R"];
+    const newLetters = chars.map((char) => ({
+      char,
+      position: {
+        x: Math.floor(Math.random() * (window.innerWidth * 0.25 - 100)),
+        y: Math.floor(Math.random() * (window.innerHeight * 0.25 - 100)),
+      },
+      collected: false,
+    }));
+    setLetters(newLetters);
+  }, []);
 
   const generateNewLetterPosition = useCallback(() => {
-    const x = Math.floor(Math.random() * (window.innerWidth - 100));
-    const y = Math.floor(Math.random() * (window.innerHeight - 100));
-    setLetterPos({ x, y });
+    return {
+      x: Math.floor(Math.random() * (window.innerWidth * 0.25 - 100)),
+      y: Math.floor(Math.random() * (window.innerHeight * 0.25 - 100)),
+    };
   }, []);
 
   const checkCollision = useCallback(() => {
-    const distance = Math.sqrt(
-      Math.pow(playerPos.x - letterPos.x, 2) + Math.pow(playerPos.y - letterPos.y, 2)
-    );
-    if (distance < 30) {
-      setScore((prev) => {
-        const newScore = prev + 1;
-        if (newScore >= 5) {
-          setIsWinner(true);
+    setLetters((prevLetters) => {
+      let allCollected = true;
+      const newLetters = prevLetters.map((letter) => {
+        if (!letter.collected) {
+          const distance = Math.sqrt(
+            Math.pow(playerPos.x - letter.position.x, 2) +
+              Math.pow(playerPos.y - letter.position.y, 2)
+          );
+          if (distance < 30) {
+            return {
+              ...letter,
+              collected: true,
+            };
+          }
+          allCollected = false;
         }
-        return newScore;
+        return letter;
       });
-      generateNewLetterPosition();
-    }
-  }, [playerPos, letterPos, generateNewLetterPosition]);
+
+      if (allCollected) {
+        setIsWinner(true);
+      }
+
+      return newLetters;
+    });
+  }, [playerPos]);
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       setPlayerPos((prev) => {
         let newPos = { ...prev };
+        const maxWidth = window.innerWidth * 0.25;
+        const maxHeight = window.innerHeight * 0.25;
+
         switch (e.key) {
           case "ArrowUp":
             newPos.y = Math.max(0, prev.y - speed);
             break;
           case "ArrowDown":
-            newPos.y = Math.min(window.innerHeight - 30, prev.y + speed);
+            newPos.y = Math.min(maxHeight - 30, prev.y + speed);
             break;
           case "ArrowLeft":
             newPos.x = Math.max(0, prev.x - speed);
             break;
           case "ArrowRight":
-            newPos.x = Math.min(window.innerWidth - 30, prev.x + speed);
+            newPos.x = Math.min(maxWidth - 30, prev.x + speed);
             break;
         }
         return newPos;
@@ -68,14 +103,22 @@ const GameBoard = () => {
   }, [playerPos, checkCollision]);
 
   return (
-    <div className="relative w-full h-screen bg-gradient-to-b from-[#e6e9f0] to-[#eef1f5] overflow-hidden">
+    <div className="relative w-1/4 h-1/4 bg-gradient-to-b from-[#e6e9f0] to-[#eef1f5] overflow-hidden mx-auto">
       <div className="absolute top-4 left-4 text-2xl font-bold text-gray-700">
-        Score: {score}/5
+        {letters.filter((l) => l.collected).length}/{letters.length}
       </div>
       {!isWinner && (
         <>
           <Player position={playerPos} />
-          <Letter position={letterPos} />
+          {letters.map((letter, index) => (
+            !letter.collected && (
+              <Letter
+                key={index}
+                position={letter.position}
+                char={letter.char}
+              />
+            )
+          ))}
         </>
       )}
       {isWinner && <WinnerText />}
