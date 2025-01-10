@@ -3,12 +3,12 @@ import React from "react";
 const WinnerText = () => {
   return (
     <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-r from-purple-500/30 to-pink-500/30 animate-fade-in">
-      <div className="flex flex-col items-center space-y-4">
-        <div className="flex space-x-2 animate-winner-text">
+      <div className="flex flex-col items-center space-y-4 px-4">
+        <div className="flex flex-wrap justify-center gap-2 animate-winner-text max-w-[300px]">
           {["S", "K", "R", "I", "B", "E", "R", " ", "W", "I", "N", "N", "E", "R"].map((letter, index) => (
             <span
               key={index}
-              className={`text-6xl font-bold transform hover:scale-125 transition-transform ${
+              className={`text-4xl font-bold transform hover:scale-125 transition-transform ${
                 index % 5 === 0
                   ? "text-winner1 animate-bounce"
                   : index % 5 === 1
@@ -28,11 +28,11 @@ const WinnerText = () => {
             </span>
           ))}
         </div>
-        <div className="flex space-x-4">
+        <div className="flex space-x-2">
           {[...Array(5)].map((_, i) => (
             <div
               key={i}
-              className="w-4 h-4 rounded-full animate-ping"
+              className="w-3 h-3 rounded-full animate-ping"
               style={{
                 backgroundColor: i % 2 === 0 ? "#8B5CF6" : "#F97316",
                 animationDelay: `${i * 0.2}s`
