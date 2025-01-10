@@ -18,6 +18,9 @@ const GameBoard = () => {
   const [playerPos, setPlayerPos] = useState<Position>({ x: 50, y: 50 });
   const [letters, setLetters] = useState<LetterState[]>([]);
   const [isWinner, setIsWinner] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(45);
+  const [score, setScore] = useState(0);
+  const [gameOver, setGameOver] = useState(false);
   const speed = 15;
 
   // Initialize letters
@@ -26,20 +29,34 @@ const GameBoard = () => {
     const newLetters = chars.map((char) => ({
       char,
       position: {
-        x: Math.floor(Math.random() * 300),  // Fixed width boundary
-        y: Math.floor(Math.random() * 300),  // Fixed height boundary
+        x: Math.floor(Math.random() * 300),
+        y: Math.floor(Math.random() * 300),
       },
       collected: false,
     }));
     setLetters(newLetters);
   }, []);
 
-  const generateNewLetterPosition = useCallback(() => {
-    return {
-      x: Math.floor(Math.random() * 300),  // Fixed width boundary
-      y: Math.floor(Math.random() * 300),  // Fixed height boundary
-    };
-  }, []);
+  // Timer logic
+  useEffect(() => {
+    if (timeLeft > 0 && !isWinner && !gameOver) {
+      const timer = setInterval(() => {
+        setTimeLeft((prev) => prev - 1);
+      }, 1000);
+
+      return () => clearInterval(timer);
+    } else if (timeLeft === 0 && !isWinner) {
+      setGameOver(true);
+    }
+  }, [timeLeft, isWinner]);
+
+  const calculateScore = useCallback(() => {
+    // Score calculation based on time left
+    // Maximum score (1000000) when collecting all letters immediately
+    // Minimum score (0) when time is almost up
+    const baseScore = Math.floor((timeLeft / 45) * 1000000);
+    return Math.max(0, baseScore);
+  }, [timeLeft]);
 
   const checkCollision = useCallback(() => {
     setLetters((prevLetters) => {
@@ -63,18 +80,19 @@ const GameBoard = () => {
 
       if (allCollected) {
         setIsWinner(true);
+        setScore(calculateScore());
       }
 
       return newLetters;
     });
-  }, [playerPos]);
+  }, [playerPos, calculateScore]);
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       setPlayerPos((prev) => {
         let newPos = { ...prev };
-        const maxWidth = 300;   // Fixed width boundary
-        const maxHeight = 300;  // Fixed height boundary
+        const maxWidth = 300;
+        const maxHeight = 300;
 
         switch (e.key) {
           case "ArrowUp":
@@ -108,7 +126,10 @@ const GameBoard = () => {
         <div className="absolute top-4 left-4 text-2xl font-bold text-gray-700">
           {letters.filter((l) => l.collected).length}/{letters.length}
         </div>
-        {!isWinner && (
+        <div className="absolute top-4 right-4 text-2xl font-bold text-gray-700">
+          {timeLeft}s
+        </div>
+        {!isWinner && !gameOver && (
           <>
             <Player position={playerPos} />
             {letters.map((letter, index) => (
@@ -122,7 +143,19 @@ const GameBoard = () => {
             ))}
           </>
         )}
-        {isWinner && <WinnerText />}
+        {isWinner && (
+          <>
+            <WinnerText />
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-2xl font-bold text-purple-600 animate-bounce">
+              Score: {score.toLocaleString()}
+            </div>
+          </>
+        )}
+        {gameOver && !isWinner && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-4xl font-bold text-red-500">Time's Up!</div>
+          </div>
+        )}
       </div>
     </div>
   );
