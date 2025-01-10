@@ -18,7 +18,6 @@ const GameBoard = () => {
   const [playerPos, setPlayerPos] = useState<Position>({ x: 50, y: 50 });
   const [letters, setLetters] = useState<LetterState[]>([]);
   const [isWinner, setIsWinner] = useState(false);
-  const [nextLetterIndex, setNextLetterIndex] = useState(0);
   const speed = 15;
 
   // Initialize letters
@@ -27,45 +26,55 @@ const GameBoard = () => {
     const newLetters = chars.map((char) => ({
       char,
       position: {
-        x: Math.floor(Math.random() * 300),
-        y: Math.floor(Math.random() * 300),
+        x: Math.floor(Math.random() * 300),  // Fixed width boundary
+        y: Math.floor(Math.random() * 300),  // Fixed height boundary
       },
       collected: false,
     }));
     setLetters(newLetters);
   }, []);
 
+  const generateNewLetterPosition = useCallback(() => {
+    return {
+      x: Math.floor(Math.random() * 300),  // Fixed width boundary
+      y: Math.floor(Math.random() * 300),  // Fixed height boundary
+    };
+  }, []);
+
   const checkCollision = useCallback(() => {
     setLetters((prevLetters) => {
-      const newLetters = [...prevLetters];
-      const currentLetter = newLetters[nextLetterIndex];
-
-      if (currentLetter && !currentLetter.collected) {
-        const distance = Math.sqrt(
-          Math.pow(playerPos.x - currentLetter.position.x, 2) +
-          Math.pow(playerPos.y - currentLetter.position.y, 2)
-        );
-
-        if (distance < 30) {
-          newLetters[nextLetterIndex].collected = true;
-          setNextLetterIndex((prev) => prev + 1);
-
-          if (nextLetterIndex === letters.length - 1) {
-            setIsWinner(true);
+      let allCollected = true;
+      const newLetters = prevLetters.map((letter) => {
+        if (!letter.collected) {
+          const distance = Math.sqrt(
+            Math.pow(playerPos.x - letter.position.x, 2) +
+              Math.pow(playerPos.y - letter.position.y, 2)
+          );
+          if (distance < 30) {
+            return {
+              ...letter,
+              collected: true,
+            };
           }
+          allCollected = false;
         }
+        return letter;
+      });
+
+      if (allCollected) {
+        setIsWinner(true);
       }
 
       return newLetters;
     });
-  }, [playerPos, nextLetterIndex, letters.length]);
+  }, [playerPos]);
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       setPlayerPos((prev) => {
         let newPos = { ...prev };
-        const maxWidth = 300;
-        const maxHeight = 300;
+        const maxWidth = 300;   // Fixed width boundary
+        const maxHeight = 300;  // Fixed height boundary
 
         switch (e.key) {
           case "ArrowUp":
@@ -108,7 +117,6 @@ const GameBoard = () => {
                   key={index}
                   position={letter.position}
                   char={letter.char}
-                  isNext={index === nextLetterIndex}
                 />
               )
             ))}
