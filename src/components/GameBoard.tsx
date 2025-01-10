@@ -44,12 +44,27 @@ const GameBoard = () => {
     }));
 
     // Initialize 3 bad dots on the opposite side (bottom right) of the screen
-    const newBadDots = Array(3).fill(null).map(() => ({
-      position: {
+    const newBadDots: BadDotState[] = [];
+    const minDistance = 50; // Minimum distance between bad dots
+
+    while (newBadDots.length < 3) {
+      const newPosition = {
         x: Math.floor(Math.random() * 100) + 200, // Random position between 200-300
         y: Math.floor(Math.random() * 100) + 200, // Random position between 200-300
-      },
-    }));
+      };
+
+      // Check distance from all existing bad dots
+      const isTooClose = newBadDots.some(dot => {
+        const dx = dot.position.x - newPosition.x;
+        const dy = dot.position.y - newPosition.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        return distance < minDistance;
+      });
+
+      if (!isTooClose) {
+        newBadDots.push({ position: newPosition });
+      }
+    }
 
     setLetters(newLetters);
     setBadDots(newBadDots);
