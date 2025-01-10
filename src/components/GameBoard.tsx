@@ -43,11 +43,11 @@ const GameBoard = () => {
       collected: false,
     }));
 
-    // Initialize 3 bad dots at random positions
+    // Initialize 3 bad dots on the opposite side (bottom right) of the screen
     const newBadDots = Array(3).fill(null).map(() => ({
       position: {
-        x: Math.floor(Math.random() * 300),
-        y: Math.floor(Math.random() * 300),
+        x: Math.floor(Math.random() * 100) + 200, // Random position between 200-300
+        y: Math.floor(Math.random() * 100) + 200, // Random position between 200-300
       },
     }));
 
