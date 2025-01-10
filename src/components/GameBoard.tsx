@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { Button } from "@/components/ui/button";
 import Player from "./Player";
 import Letter from "./Letter";
 import WinnerText from "./WinnerText";
@@ -21,10 +22,10 @@ const GameBoard = () => {
   const [timeLeft, setTimeLeft] = useState(45);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false);
   const speed = 15;
 
-  // Initialize letters
-  useEffect(() => {
+  const initializeGame = useCallback(() => {
     const chars = ["S", "K", "R", "I", "B", "E", "R"];
     const newLetters = chars.map((char) => ({
       char,
@@ -35,25 +36,28 @@ const GameBoard = () => {
       collected: false,
     }));
     setLetters(newLetters);
+    setPlayerPos({ x: 50, y: 50 });
+    setTimeLeft(45);
+    setScore(0);
+    setIsWinner(false);
+    setGameOver(false);
+    setGameStarted(true);
   }, []);
 
   // Timer logic
   useEffect(() => {
-    if (timeLeft > 0 && !isWinner && !gameOver) {
+    if (timeLeft > 0 && !isWinner && gameStarted && !gameOver) {
       const timer = setInterval(() => {
         setTimeLeft((prev) => prev - 1);
       }, 1000);
 
       return () => clearInterval(timer);
-    } else if (timeLeft === 0 && !isWinner) {
+    } else if (timeLeft === 0 && !isWinner && gameStarted) {
       setGameOver(true);
     }
-  }, [timeLeft, isWinner]);
+  }, [timeLeft, isWinner, gameStarted]);
 
   const calculateScore = useCallback(() => {
-    // Score calculation based on time left
-    // Maximum score (1000000) when collecting all letters immediately
-    // Minimum score (0) when time is almost up
     const baseScore = Math.floor((timeLeft / 45) * 1000000);
     return Math.max(0, baseScore);
   }, [timeLeft]);
@@ -89,6 +93,8 @@ const GameBoard = () => {
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
+      if (!gameStarted || gameOver || isWinner) return;
+      
       setPlayerPos((prev) => {
         let newPos = { ...prev };
         const maxWidth = 300;
@@ -114,7 +120,7 @@ const GameBoard = () => {
 
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, []);
+  }, [gameStarted, gameOver, isWinner]);
 
   useEffect(() => {
     checkCollision();
@@ -123,14 +129,25 @@ const GameBoard = () => {
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="relative w-[400px] h-[400px] bg-gradient-to-b from-[#e6e9f0] to-[#eef1f5] overflow-hidden border border-gray-200 rounded-lg shadow-lg">
-        <div className="absolute top-4 left-4 text-2xl font-bold text-gray-700">
-          {letters.filter((l) => l.collected).length}/{letters.length}
-        </div>
-        <div className="absolute top-4 right-4 text-2xl font-bold text-gray-700">
-          {timeLeft}s
-        </div>
-        {!isWinner && !gameOver && (
+        {!gameStarted && !gameOver && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Button 
+              onClick={initializeGame}
+              className="text-xl px-8 py-6"
+            >
+              Start Game
+            </Button>
+          </div>
+        )}
+        
+        {gameStarted && !gameOver && !isWinner && (
           <>
+            <div className="absolute top-4 left-4 text-2xl font-bold text-gray-700">
+              {letters.filter((l) => l.collected).length}/{letters.length}
+            </div>
+            <div className="absolute top-4 right-4 text-2xl font-bold text-gray-700">
+              {timeLeft}s
+            </div>
             <Player position={playerPos} />
             {letters.map((letter, index) => (
               !letter.collected && (
@@ -143,17 +160,35 @@ const GameBoard = () => {
             ))}
           </>
         )}
+        
         {isWinner && (
           <>
             <WinnerText />
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-2xl font-bold text-purple-600 animate-bounce">
-              Score: {score.toLocaleString()}
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-4">
+              <div className="text-2xl font-bold text-purple-600 animate-bounce">
+                Score: {score.toLocaleString()}
+              </div>
+              <Button 
+                onClick={initializeGame}
+                className="text-lg px-6 py-4"
+              >
+                Play Again
+              </Button>
             </div>
           </>
         )}
+        
         {gameOver && !isWinner && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-4xl font-bold text-red-500">Time's Up!</div>
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
+            <div className="text-3xl font-bold text-red-500 text-center px-4">
+              You aren't a Skriber winner, try again
+            </div>
+            <Button 
+              onClick={initializeGame}
+              className="text-lg px-6 py-4"
+            >
+              Try Again
+            </Button>
           </div>
         )}
       </div>
