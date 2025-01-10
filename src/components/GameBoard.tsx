@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import Player from "./Player";
 import Letter from "./Letter";
 import WinnerText from "./WinnerText";
+import BadDot from "./BadDot";
 
 interface Position {
   x: number;
@@ -15,15 +16,21 @@ interface LetterState {
   collected: boolean;
 }
 
+interface BadDotState {
+  position: Position;
+}
+
 const GameBoard = () => {
   const [playerPos, setPlayerPos] = useState<Position>({ x: 50, y: 50 });
   const [letters, setLetters] = useState<LetterState[]>([]);
   const [isWinner, setIsWinner] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(45);
+  const [timeLeft, setTimeLeft] = useState(30);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
+  const [badDots, setBadDots] = useState<BadDotState[]>([]);
   const speed = 15;
+  const badDotSpeed = 1;
 
   const initializeGame = useCallback(() => {
     const chars = ["S", "K", "R", "I", "B", "E", "R"];
@@ -35,9 +42,19 @@ const GameBoard = () => {
       },
       collected: false,
     }));
+
+    // Initialize 3 bad dots at random positions
+    const newBadDots = Array(3).fill(null).map(() => ({
+      position: {
+        x: Math.floor(Math.random() * 300),
+        y: Math.floor(Math.random() * 300),
+      },
+    }));
+
     setLetters(newLetters);
+    setBadDots(newBadDots);
     setPlayerPos({ x: 50, y: 50 });
-    setTimeLeft(45);
+    setTimeLeft(30);
     setScore(0);
     setIsWinner(false);
     setGameOver(false);
@@ -57,8 +74,58 @@ const GameBoard = () => {
     }
   }, [timeLeft, isWinner, gameStarted]);
 
+  // Bad dots movement logic
+  useEffect(() => {
+    if (!gameStarted || gameOver || isWinner) return;
+
+    const moveInterval = setInterval(() => {
+      setBadDots((prevDots) =>
+        prevDots.map((dot) => {
+          const dx = playerPos.x - dot.position.x;
+          const dy = playerPos.y - dot.position.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance < 1) return dot;
+
+          const newX = dot.position.x + (dx / distance) * badDotSpeed;
+          const newY = dot.position.y + (dy / distance) * badDotSpeed;
+
+          return {
+            position: {
+              x: Math.max(0, Math.min(300, newX)),
+              y: Math.max(0, Math.min(300, newY)),
+            },
+          };
+        })
+      );
+    }, 50);
+
+    return () => clearInterval(moveInterval);
+  }, [playerPos, gameStarted, gameOver, isWinner]);
+
+  // Check for collision with bad dots
+  useEffect(() => {
+    if (!gameStarted || gameOver || isWinner) return;
+
+    const checkBadDotCollision = () => {
+      const collision = badDots.some((dot) => {
+        const distance = Math.sqrt(
+          Math.pow(playerPos.x - dot.position.x, 2) +
+          Math.pow(playerPos.y - dot.position.y, 2)
+        );
+        return distance < 20;
+      });
+
+      if (collision) {
+        setGameOver(true);
+      }
+    };
+
+    checkBadDotCollision();
+  }, [playerPos, badDots, gameStarted, gameOver, isWinner]);
+
   const calculateScore = useCallback(() => {
-    const baseScore = Math.floor((timeLeft / 45) * 1000000);
+    const baseScore = Math.floor((timeLeft / 30) * 1000000);
     return Math.max(0, baseScore);
   }, [timeLeft]);
 
@@ -157,6 +224,9 @@ const GameBoard = () => {
                   char={letter.char}
                 />
               )
+            ))}
+            {badDots.map((dot, index) => (
+              <BadDot key={index} position={dot.position} />
             ))}
           </>
         )}
