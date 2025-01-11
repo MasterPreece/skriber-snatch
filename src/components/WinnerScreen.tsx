@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import WinnerText from './WinnerText';
 import LeaderboardEntry from './LeaderboardEntry';
@@ -11,6 +11,16 @@ interface WinnerScreenProps {
 }
 
 const WinnerScreen = ({ score, showEntryForm, onSave, onRestart }: WinnerScreenProps) => {
+  const [showButton, setShowButton] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowButton(true);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center">
       <WinnerText />
@@ -21,12 +31,14 @@ const WinnerScreen = ({ score, showEntryForm, onSave, onRestart }: WinnerScreenP
         {showEntryForm ? (
           <LeaderboardEntry score={score} onSave={onSave} />
         ) : (
-          <Button 
-            onClick={onRestart}
-            className="text-lg px-6 py-4"
-          >
-            Play Again
-          </Button>
+          showButton && (
+            <Button 
+              onClick={onRestart}
+              className="text-lg px-6 py-4"
+            >
+              Play Again
+            </Button>
+          )
         )}
       </div>
     </div>
