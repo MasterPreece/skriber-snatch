@@ -28,13 +28,15 @@ export const useGameState = () => {
   }, [timeLeft]);
 
   const handleSaveScore = (alias: string) => {
-    const newScore = {
+    const newScore: Score = {
       alias,
       score,
       date: new Date().toISOString(),
     };
     
-    const newScores = [...scores, newScore]
+    // Get existing scores from localStorage to ensure we have the latest data
+    const existingScores = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    const newScores = [...existingScores, newScore]
       .sort((a, b) => b.score - a.score)
       .slice(0, 10);
     
