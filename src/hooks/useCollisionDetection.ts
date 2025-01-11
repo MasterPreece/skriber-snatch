@@ -39,10 +39,10 @@ export const useCollisionDetection = (
   const checkBadDotCollision = useCallback(() => {
     const collision = badDots.some((dot) => {
       const distance = Math.sqrt(
-        Math.pow(playerPos.x - dot.position.x - 32, 2) +
-        Math.pow(playerPos.y - dot.position.y - 32, 2)
+        Math.pow(playerPos.x - dot.position.x, 2) +
+        Math.pow(playerPos.y - dot.position.y, 2)
       );
-      return distance < 12;
+      return distance < 40; // Increased collision radius for better detection
     });
 
     if (collision) {

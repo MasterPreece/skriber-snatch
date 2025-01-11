@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback } from 'react';
 import type { Position, LetterState, BadDotState } from '../types/game';
 import { useCollisionDetection } from './useCollisionDetection';
 
@@ -27,11 +27,12 @@ export const useGameLogic = (
     setGameOver
   );
 
-  useEffect(() => {
+  const checkCollision = useCallback(() => {
     if (!gameStarted || gameOver || isWinner) return;
+    
     checkLetterCollision();
     checkBadDotCollision();
-  }, [playerPos, gameStarted, gameOver, isWinner, checkLetterCollision, checkBadDotCollision]);
+  }, [gameStarted, gameOver, isWinner, checkLetterCollision, checkBadDotCollision]);
 
-  return { checkCollision: checkLetterCollision };
+  return { checkCollision };
 };
