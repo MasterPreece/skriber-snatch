@@ -20,7 +20,7 @@ const ActiveGame = ({ letters, playerPos, badDots, level }: ActiveGameProps) => 
       {letters.map((letter, index) => (
         <Letter
           key={index}
-          letter={letter.letter}
+          char={letter.char}
           position={letter.position}
           collected={letter.collected}
         />
