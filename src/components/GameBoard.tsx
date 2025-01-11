@@ -103,18 +103,6 @@ const GameBoard = () => {
     checkCollision();
   }, [playerPos, checkCollision]);
 
-  const handleGameWin = () => {
-    setScore(level);
-    setIsWinner(true);
-    setShowEntryForm(true);
-  };
-
-  React.useEffect(() => {
-    if (letters.every(l => l.collected) && gameStarted && !gameOver && !isWinner) {
-      handleGameWin();
-    }
-  }, [letters, gameStarted, gameOver, isWinner, level]);
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-8 bg-[url('/lovable-uploads/6a584446-6e3e-4052-acb6-34952ba1d772.png')] bg-cover bg-center bg-no-repeat">
       <TopScores scores={scores} />
