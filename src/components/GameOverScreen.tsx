@@ -9,7 +9,7 @@ const GameOverScreen = ({ onRestart }: GameOverScreenProps) => {
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
       <div className="text-3xl font-bold text-red-500 text-center px-4">
-        You aren't a Skriber winner, try again
+        You got FREED
       </div>
       <Button 
         onClick={onRestart}
