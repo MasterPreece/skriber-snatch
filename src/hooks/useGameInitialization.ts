@@ -14,36 +14,41 @@ export const useGameInitialization = (
   setGameStarted: (started: boolean) => void,
 ) => {
   const initializeGame = useCallback(() => {
-    const chars = ["S", "K", "R", "I", "B", "E", "R"];
-    const newLetters = chars.map((char) => ({
-      char,
-      position: {
-        x: Math.floor(Math.random() * 300),
-        y: Math.floor(Math.random() * 300),
-      },
-      collected: false,
-    }));
-
-    const baseSpeed = 1;
-    const newBadDots: BadDotState[] = [{
-      position: {
-        x: Math.floor(Math.random() * 300),
-        y: Math.floor(Math.random() * 300),
-      },
-      speed: baseSpeed,
-    }];
-
-    const randomEmoji = PLAYER_EMOJIS[Math.floor(Math.random() * PLAYER_EMOJIS.length)];
-    (window as any).currentPlayerEmoji = randomEmoji;
-
-    setLetters(newLetters);
-    setBadDots(newBadDots);
-    setPlayerPos({ x: 30, y: 30 });
-    setLevel(1);
-    setScore(0);
-    setIsWinner(false);
+    // Reset game state first
     setGameOver(false);
-    setGameStarted(true);
+    setIsWinner(false);
+    
+    // Small delay to ensure state is reset before starting new game
+    setTimeout(() => {
+      const chars = ["S", "K", "R", "I", "B", "E", "R"];
+      const newLetters = chars.map((char) => ({
+        char,
+        position: {
+          x: Math.floor(Math.random() * 300),
+          y: Math.floor(Math.random() * 300),
+        },
+        collected: false,
+      }));
+
+      const baseSpeed = 1;
+      const newBadDots: BadDotState[] = [{
+        position: {
+          x: Math.floor(Math.random() * 300),
+          y: Math.floor(Math.random() * 300),
+        },
+        speed: baseSpeed,
+      }];
+
+      const randomEmoji = PLAYER_EMOJIS[Math.floor(Math.random() * PLAYER_EMOJIS.length)];
+      (window as any).currentPlayerEmoji = randomEmoji;
+
+      setLetters(newLetters);
+      setBadDots(newBadDots);
+      setPlayerPos({ x: 30, y: 30 });
+      setLevel(1);
+      setScore(0);
+      setGameStarted(true);
+    }, 100);
   }, [setLetters, setBadDots, setPlayerPos, setLevel, setScore, setIsWinner, setGameOver, setGameStarted]);
 
   return { initializeGame };
