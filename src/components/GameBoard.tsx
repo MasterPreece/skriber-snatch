@@ -36,6 +36,8 @@ const GameBoard = () => {
     scores
   } = useGameState();
 
+  const canMoveRef = React.useRef(true);
+
   const { initializeGame } = useGameInitialization(
     setLetters,
     setBadDots,
@@ -84,8 +86,18 @@ const GameBoard = () => {
 
   const isMobile = useIsMobile();
 
+  // Reset canMove when level changes
+  React.useEffect(() => {
+    if (gameStarted && !gameOver && !isWinner) {
+      canMoveRef.current = false;
+      setTimeout(() => {
+        canMoveRef.current = true;
+      }, 500);
+    }
+  }, [level, gameStarted, gameOver, isWinner]);
+
   const handleMobileMove = (direction: "ArrowUp" | "ArrowDown" | "ArrowLeft" | "ArrowRight") => {
-    if (!gameStarted || gameOver || isWinner) return;
+    if (!gameStarted || gameOver || isWinner || !canMoveRef.current) return;
     
     setPlayerPos((prev) => {
       let newPos = { ...prev };

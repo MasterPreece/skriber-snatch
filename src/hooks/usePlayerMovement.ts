@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import type { Position } from '../types/game';
 
 export const usePlayerMovement = (
@@ -6,11 +6,23 @@ export const usePlayerMovement = (
   gameOver: boolean,
   isWinner: boolean,
   setPlayerPos: (value: Position | ((prev: Position) => Position)) => void,
-  speed: number = 33.75  // Increased from 22.5 to 33.75 (another 1.5x faster)
+  speed: number = 33.75
 ) => {
+  const canMoveRef = useRef(true);
+
+  // Reset canMove when game state changes
+  useEffect(() => {
+    if (gameStarted && !gameOver && !isWinner) {
+      canMoveRef.current = false;
+      setTimeout(() => {
+        canMoveRef.current = true;
+      }, 500);
+    }
+  }, [gameStarted, gameOver, isWinner]);
+
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      if (!gameStarted || gameOver || isWinner) return;
+      if (!gameStarted || gameOver || isWinner || !canMoveRef.current) return;
       
       setPlayerPos((prev: Position) => {
         let newPos = { ...prev };
