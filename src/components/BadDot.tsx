@@ -10,7 +10,7 @@ interface BadDotProps {
 const BadDot = ({ position }: BadDotProps) => {
   return (
     <div
-      className="absolute flex items-center justify-center w-16 h-16 bg-destructive rounded-full transition-all duration-75 ease-linear text-4xl"
+      className="absolute flex items-center justify-center w-16 h-16 rounded-full transition-all duration-75 ease-linear text-4xl"
       style={{
         transform: `translate(${position.x}px, ${position.y}px)`,
       }}
