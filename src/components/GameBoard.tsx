@@ -73,7 +73,10 @@ const GameBoard = () => {
     <div className="flex flex-col items-center justify-center min-h-screen">
       <div className="relative w-[400px] h-[400px] bg-gradient-to-b from-[#e6e9f0] to-[#eef1f5] overflow-hidden border border-gray-200 rounded-lg shadow-lg">
         {!gameStarted && !gameOver && (
-          <div className="absolute inset-0 flex items-center justify-center">
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-8 p-8">
+            <h1 className="text-4xl font-bold text-purple-600 text-center">
+              Welcome to Skriber Snatch
+            </h1>
             <Button 
               onClick={initializeGame}
               className="text-xl px-8 py-6"
