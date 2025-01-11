@@ -140,8 +140,8 @@ const GameBoard = () => {
           </>
         )}
         
-        {isWinner && gameOver && (
-          <>
+        {(isWinner && gameOver) && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
             <WinnerText />
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-4">
               <div className="text-2xl font-bold text-purple-600 animate-bounce">
@@ -158,7 +158,7 @@ const GameBoard = () => {
                 </Button>
               )}
             </div>
-          </>
+          </div>
         )}
         
         {gameOver && !isWinner && (
