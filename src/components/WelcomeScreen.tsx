@@ -13,12 +13,21 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
           Welcome to Skriber Snatch
         </h1>
       </div>
-      <Button 
-        onClick={onStart}
-        className="mt-8 text-lg px-6 py-4"
-      >
-        Play
-      </Button>
+      <div className="flex flex-col gap-4 mt-8">
+        <Button 
+          onClick={onStart}
+          className="text-lg px-6 py-4"
+        >
+          Play
+        </Button>
+        <Button 
+          onClick={onStart}
+          variant="outline"
+          className="text-lg px-6 py-4"
+        >
+          Play Again
+        </Button>
+      </div>
     </div>
   );
 };
