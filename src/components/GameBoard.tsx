@@ -47,6 +47,18 @@ const GameBoard = () => {
     setGameStarted
   );
 
+  const resetGame = () => {
+    setGameStarted(false);
+    setGameOver(false);
+    setIsWinner(false);
+    setLetters([]);
+    setBadDots([]);
+    setLevel(1);
+    setScore(0);
+    setPlayerPos({ x: 30, y: 30 });
+    setShowEntryForm(false);
+  };
+
   const { checkCollision } = useGameLogic(
     gameStarted,
     gameOver,
@@ -102,6 +114,11 @@ const GameBoard = () => {
   React.useEffect(() => {
     checkCollision();
   }, [playerPos, checkCollision]);
+
+  // Reset game when component mounts
+  React.useEffect(() => {
+    resetGame();
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-8 bg-[url('/lovable-uploads/6a584446-6e3e-4052-acb6-34952ba1d772.png')] bg-cover bg-center bg-no-repeat">
