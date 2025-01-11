@@ -44,8 +44,10 @@ export const useCollisionDetection = ({
 
     if (allCollected) {
       setIsWinner(true);
-      setLevel((prev) => prev + 1);
-      setScore((prev) => prev + 100);
+      const newLevel = level + 1;
+      setLevel(newLevel);
+      const newScore = score + 100;
+      setScore(newScore);
     }
   }, [playerPos, setLetters, setIsWinner, setLevel, setScore]);
 
