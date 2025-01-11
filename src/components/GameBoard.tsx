@@ -77,7 +77,7 @@ const GameBoard = () => {
     
     setPlayerPos((prev) => {
       let newPos = { ...prev };
-      const speed = 15;
+      const speed = 22.5; // Increased from 15 to 22.5 (1.5x faster)
       const maxWidth = 350;
       const maxHeight = 350;
 
