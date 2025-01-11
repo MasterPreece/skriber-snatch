@@ -1,8 +1,8 @@
 import React from 'react';
-import GameBoard from "@/components/GameBoard";
+import GameContainer from "@/components/GameContainer";
 
 const Index = () => {
-  return <GameBoard />;
+  return <GameContainer />;
 };
 
 export default Index;
