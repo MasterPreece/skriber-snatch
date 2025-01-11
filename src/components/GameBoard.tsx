@@ -59,7 +59,7 @@ const GameBoard = () => {
     setShowEntryForm(false);
   };
 
-  const { checkCollision } = useGameLogic(
+  const { checkCollision } = useGameLogic({
     gameStarted,
     gameOver,
     isWinner,
@@ -72,8 +72,9 @@ const GameBoard = () => {
     setIsWinner,
     setGameOver,
     setLevel,
-    setScore
-  );
+    setScore,
+    setPlayerPos
+  });
 
   usePlayerMovement(
     gameStarted,
