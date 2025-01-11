@@ -42,8 +42,8 @@ export const useGameLogic = (
       });
     });
 
-    // Check if this collection completed the level
-    if (letterCollectedThisCheck && collectedCount === letters.length - 1) {
+    // Check if player has collected all 7 letters
+    if (letterCollectedThisCheck && collectedCount === 6) { // 6 because we're checking before the state update
       const nextLevel = level + 1;
       setLevel(nextLevel);
       setScore(nextLevel);
