@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { Position, LetterState, BadDotState, Score } from '../types/game';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -49,7 +49,7 @@ export const useGameState = () => {
     }
   }, [letters, level, gameStarted, gameOver, isWinner]);
 
-  const handleSaveScore = (alias: string) => {
+  const handleSaveScore = useCallback((alias: string) => {
     const newScore: Score = {
       alias,
       score: level,
@@ -71,7 +71,7 @@ export const useGameState = () => {
       description: `${alias} - Level ${level}`,
       duration: 3000,
     });
-  };
+  }, [level, toast]);
 
   return {
     playerPos,
