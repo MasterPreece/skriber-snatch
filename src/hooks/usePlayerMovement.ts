@@ -5,14 +5,14 @@ export const usePlayerMovement = (
   gameStarted: boolean,
   gameOver: boolean,
   isWinner: boolean,
-  setPlayerPos: (pos: Position) => void,
+  setPlayerPos: (value: Position | ((prev: Position) => Position)) => void,
   speed: number = 15
 ) => {
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (!gameStarted || gameOver || isWinner) return;
       
-      setPlayerPos((prev) => {
+      setPlayerPos((prev: Position) => {
         let newPos = { ...prev };
         const maxWidth = 350;
         const maxHeight = 350;

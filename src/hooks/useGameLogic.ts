@@ -9,16 +9,16 @@ export const useGameLogic = (
   letters: LetterState[],
   badDots: BadDotState[],
   timeLeft: number,
-  setLetters: (letters: LetterState[]) => void,
-  setBadDots: (dots: BadDotState[]) => void,
+  setLetters: (value: LetterState[] | ((prev: LetterState[]) => LetterState[])) => void,
+  setBadDots: (value: BadDotState[] | ((prev: BadDotState[]) => BadDotState[])) => void,
   setIsWinner: (winner: boolean) => void,
   setGameOver: (over: boolean) => void,
-  setTimeLeft: (time: number) => void,
+  setTimeLeft: (value: number | ((prev: number) => number)) => void,
   setScore: (score: number) => void,
   calculateScore: () => number
 ) => {
   const checkCollision = useCallback(() => {
-    setLetters((prevLetters) => {
+    setLetters((prevLetters: LetterState[]) => {
       let allCollected = true;
       const newLetters = prevLetters.map((letter) => {
         if (!letter.collected) {
@@ -50,7 +50,7 @@ export const useGameLogic = (
   useEffect(() => {
     if (timeLeft > 0 && !isWinner && gameStarted && !gameOver) {
       const timer = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
+        setTimeLeft((prev: number) => prev - 1);
       }, 1000);
 
       return () => clearInterval(timer);
@@ -64,7 +64,7 @@ export const useGameLogic = (
     if (!gameStarted || gameOver || isWinner) return;
 
     const moveInterval = setInterval(() => {
-      setBadDots((prevDots) =>
+      setBadDots((prevDots: BadDotState[]) =>
         prevDots.map((dot) => {
           const dx = playerPos.x - dot.position.x;
           const dy = playerPos.y - dot.position.y;
