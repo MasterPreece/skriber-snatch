@@ -4,7 +4,7 @@ import type { Position, LetterState, BadDotState } from '../types/game';
 export const useCollisionDetection = (
   playerPos: Position,
   letters: LetterState[],
-  setLetters: (letters: LetterState[]) => void,
+  setLetters: (letters: LetterState[] | ((prev: LetterState[]) => LetterState[])) => void,
   badDots: BadDotState[],
   level: number,
   setLevel: (level: number) => void,
@@ -13,7 +13,7 @@ export const useCollisionDetection = (
   const checkLetterCollision = useCallback(() => {
     let collectedCount = 0;
     
-    setLetters((prevLetters) => {
+    setLetters((prevLetters: LetterState[]) => {
       const newLetters = prevLetters.map((letter) => {
         if (!letter.collected) {
           const distance = Math.sqrt(
