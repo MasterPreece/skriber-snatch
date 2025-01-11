@@ -22,8 +22,8 @@ export const useGameLogic = (
   const isFrozen = useRef(false);
 
   const getRandomPosition = (): Position => ({
-    x: Math.floor(Math.random() * 300),
-    y: Math.floor(Math.random() * 300),
+    x: Math.floor(Math.random() * 350),
+    y: Math.floor(Math.random() * 350),
   });
 
   const initializeLevel = useCallback(() => {
@@ -42,7 +42,6 @@ export const useGameLogic = (
       speed: baseSpeed,
     }));
 
-    // Initialize snowflake in a random position
     const newSnowflake: SnowflakeState = {
       position: getRandomPosition(),
       collected: false,
@@ -52,7 +51,6 @@ export const useGameLogic = (
     setBadDots(newBadDots);
     setSnowflake(newSnowflake);
     
-    // Pause bad dot movement for 0.5 seconds when level starts
     canBadDotsMove.current = false;
     setTimeout(() => {
       canBadDotsMove.current = true;
@@ -62,7 +60,6 @@ export const useGameLogic = (
   const checkCollision = useCallback(() => {
     if (!gameStarted || gameOver || isWinner) return;
 
-    // Check snowflake collection
     if (!snowflake.collected) {
       const snowflakeDistance = Math.sqrt(
         Math.pow(playerPos.x - snowflake.position.x, 2) +
@@ -71,7 +68,6 @@ export const useGameLogic = (
       
       if (snowflakeDistance < 30) {
         setSnowflake({ ...snowflake, collected: true });
-        // Freeze bad dots for 2 seconds
         isFrozen.current = true;
         setTimeout(() => {
           isFrozen.current = false;
@@ -94,30 +90,25 @@ export const useGameLogic = (
       return letter;
     });
 
-    // Only update letters if there's a change
     const hasLettersChanged = JSON.stringify(letters) !== JSON.stringify(newLetters);
     
     if (hasLettersChanged) {
       setLetters(newLetters);
       
-      // If all letters are collected, advance to next level
       if (allCollected) {
         setLevel(level + 1);
         setScore(level);
-        // Initialize the next level immediately
         setTimeout(() => initializeLevel(), 100);
       }
     }
   }, [playerPos, level, letters, gameStarted, gameOver, isWinner, setLetters, setLevel, setScore, initializeLevel, snowflake, setSnowflake]);
 
-  // Initialize level when game starts
   useEffect(() => {
     if (gameStarted && !gameOver && !isWinner) {
       initializeLevel();
     }
   }, [gameStarted, gameOver, isWinner, initializeLevel]);
 
-  // Bad dots movement logic
   useEffect(() => {
     if (!gameStarted || gameOver || isWinner || !canBadDotsMove.current || isFrozen.current) return;
 
@@ -135,8 +126,8 @@ export const useGameLogic = (
 
         return {
           position: {
-            x: Math.max(0, Math.min(300, newX)),
-            y: Math.max(0, Math.min(300, newY)),
+            x: Math.max(0, Math.min(350, newX)),
+            y: Math.max(0, Math.min(350, newY)),
           },
           speed,
         };
@@ -148,7 +139,6 @@ export const useGameLogic = (
     return () => clearInterval(moveInterval);
   }, [playerPos, gameStarted, gameOver, isWinner, badDots, setBadDots]);
 
-  // Check for collision with bad dots
   useEffect(() => {
     if (!gameStarted || gameOver || isWinner) return;
 
