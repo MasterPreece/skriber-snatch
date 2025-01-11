@@ -1,98 +1,101 @@
-import { useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 import type { Position, LetterState, BadDotState } from '../types/game';
 
-interface UseGameLogicProps {
-  gameStarted: boolean;
-  gameOver: boolean;
-  isWinner: boolean;
-  playerPos: Position;
-  letters: LetterState[];
-  badDots: BadDotState[];
-  level: number;
-  setLetters: (value: LetterState[]) => void;
-  setBadDots: (value: BadDotState[]) => void;
-  setIsWinner: (value: boolean) => void;
-  setGameOver: (value: boolean) => void;
-  setLevel: (value: number) => void;
-  setScore: (value: number) => void;
-  setPlayerPos: (value: Position | ((prev: Position) => Position)) => void;
-}
-
-export const useGameLogic = ({
-  gameStarted,
-  gameOver,
-  isWinner,
-  playerPos,
-  letters,
-  badDots,
-  level,
-  setLetters,
-  setBadDots,
-  setIsWinner,
-  setGameOver,
-  setLevel,
-  setScore,
-  setPlayerPos
-}: UseGameLogicProps) => {
+export const useGameLogic = (
+  gameStarted: boolean,
+  gameOver: boolean,
+  isWinner: boolean,
+  playerPos: Position,
+  letters: LetterState[],
+  badDots: BadDotState[],
+  level: number,
+  setLetters: (value: LetterState[] | ((prev: LetterState[]) => LetterState[])) => void,
+  setBadDots: (value: BadDotState[] | ((prev: BadDotState[]) => BadDotState[])) => void,
+  setIsWinner: (winner: boolean) => void,
+  setGameOver: (over: boolean) => void,
+  setLevel: (value: number) => void,
+  setScore: (score: number) => void,
+) => {
   const checkCollision = useCallback(() => {
-    if (!gameStarted || gameOver || isWinner || !letters.length || !badDots.length) return;
-
-    // Check collision with letters
-    const updatedLetters = letters.map(letter => {
-      if (!letter.collected) {
-        const distance = Math.sqrt(
-          Math.pow(playerPos.x - letter.position.x, 2) + 
-          Math.pow(playerPos.y - letter.position.y, 2)
-        );
-        
-        if (distance < 30) {
-          return { ...letter, collected: true };
+    setLetters((prevLetters: LetterState[]) => {
+      let allCollected = true;
+      const newLetters = prevLetters.map((letter) => {
+        if (!letter.collected) {
+          const distance = Math.sqrt(
+            Math.pow(playerPos.x - letter.position.x, 2) +
+              Math.pow(playerPos.y - letter.position.y, 2)
+          );
+          if (distance < 30) {
+            return {
+              ...letter,
+              collected: true,
+            };
+          }
+          allCollected = false;
         }
+        return letter;
+      });
+
+      if (allCollected) {
+        setLevel(level + 1);
+        setScore(level);
       }
-      return letter;
+
+      return newLetters;
     });
+  }, [playerPos, level, setLetters, setLevel, setScore]);
 
-    setLetters(updatedLetters);
+  // Bad dots movement logic
+  useEffect(() => {
+    if (!gameStarted || gameOver || isWinner) return;
 
-    // Check if all letters are collected
-    if (updatedLetters.every(letter => letter.collected)) {
-      setIsWinner(true);
-      setLevel(prev => prev + 1);
-      setScore(level);
-    }
+    const moveInterval = setInterval(() => {
+      setBadDots((prevDots: BadDotState[]) =>
+        prevDots.map((dot) => {
+          const dx = playerPos.x - dot.position.x;
+          const dy = playerPos.y - dot.position.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance < 1) return dot;
 
-    // Check collision with bad dots
-    badDots.forEach(dot => {
-      const distance = Math.sqrt(
-        Math.pow(playerPos.x - dot.position.x, 2) + 
-        Math.pow(playerPos.y - dot.position.y, 2)
+          const speed = dot.speed;
+          const newX = dot.position.x + (dx / distance) * speed;
+          const newY = dot.position.y + (dy / distance) * speed;
+
+          return {
+            position: {
+              x: Math.max(0, Math.min(300, newX)),
+              y: Math.max(0, Math.min(300, newY)),
+            },
+            speed,
+          };
+        })
       );
-      
-      if (distance < 20) {
+    }, 50);
+
+    return () => clearInterval(moveInterval);
+  }, [playerPos, gameStarted, gameOver, isWinner, setBadDots]);
+
+  // Check for collision with bad dots
+  useEffect(() => {
+    if (!gameStarted || gameOver || isWinner) return;
+
+    const checkBadDotCollision = () => {
+      const collision = badDots.some((dot) => {
+        const distance = Math.sqrt(
+          Math.pow(playerPos.x - dot.position.x - 32, 2) +
+          Math.pow(playerPos.y - dot.position.y - 32, 2)
+        );
+        return distance < 12;
+      });
+
+      if (collision) {
         setGameOver(true);
       }
-    });
+    };
 
-    // Update bad dots positions to chase player
-    const updatedBadDots = badDots.map(dot => {
-      const dx = playerPos.x - dot.position.x;
-      const dy = playerPos.y - dot.position.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      
-      if (distance > 0) {
-        return {
-          ...dot,
-          position: {
-            x: dot.position.x + (dx / distance) * dot.speed,
-            y: dot.position.y + (dy / distance) * dot.speed
-          }
-        };
-      }
-      return dot;
-    });
-
-    setBadDots(updatedBadDots);
-  }, [gameStarted, gameOver, isWinner, playerPos, letters, badDots, level, setLetters, setBadDots, setIsWinner, setGameOver, setLevel, setScore]);
+    checkBadDotCollision();
+  }, [playerPos, badDots, gameStarted, gameOver, isWinner, setGameOver]);
 
   return { checkCollision };
 };

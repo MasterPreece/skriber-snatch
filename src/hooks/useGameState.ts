@@ -43,6 +43,8 @@ export const useGameState = () => {
 
   useEffect(() => {
     if (gameStarted && !gameOver && !isWinner && letters.every(l => l.collected)) {
+      const nextLevel = level + 1;
+      
       const chars = ["S", "K", "R", "I", "B", "E", "R"];
       const newLetters = chars.map((char) => ({
         char,
@@ -50,8 +52,8 @@ export const useGameState = () => {
         collected: false,
       }));
 
-      const baseSpeed = 1 + (level * 0.5);
-      const maxBadDots = Math.min(level, 10);
+      const baseSpeed = 1 + (nextLevel * 0.5);
+      const maxBadDots = Math.min(nextLevel, 10);
       
       const newBadDots: BadDotState[] = Array(maxBadDots).fill(null).map(() => ({
         position: getRandomPositionAwayFromPlayer(playerPos),
@@ -60,6 +62,7 @@ export const useGameState = () => {
 
       setLetters(newLetters);
       setBadDots(newBadDots);
+      setLevel(nextLevel);
     }
   }, [letters, level, gameStarted, gameOver, isWinner, playerPos]);
 
