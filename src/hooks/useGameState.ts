@@ -47,6 +47,7 @@ export const useGameState = () => {
     toast({
       title: "Score Saved!",
       description: `${alias} - ${score.toLocaleString()} points`,
+      duration: 3000,
     });
   };
 

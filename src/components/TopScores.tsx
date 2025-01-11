@@ -12,7 +12,7 @@ const TopScores = ({ scores }: TopScoresProps) => {
     .slice(0, 3);
 
   return (
-    <div className="w-full max-w-md mx-auto mb-8">
+    <div className="w-full max-w-md mx-auto mb-4 bg-white/90 rounded-lg shadow-lg p-4 backdrop-blur-sm">
       <h2 className="text-xl font-bold mb-4 text-center text-purple-600">Top 3 High Scores</h2>
       <Table>
         <TableHeader>
