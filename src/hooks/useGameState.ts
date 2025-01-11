@@ -23,6 +23,7 @@ export const useGameState = () => {
   });
 
   const resetGame = useCallback(() => {
+    console.log("Resetting game state...");
     setPlayerPos({ x: 30, y: 30 });
     setLetters([]);
     setIsWinner(false);
@@ -78,30 +79,6 @@ export const useGameState = () => {
     }
   }, [letters, level, gameStarted, gameOver, isWinner, playerPos]);
 
-  const handleSaveScore = useCallback((alias: string) => {
-    const newScore: Score = {
-      alias,
-      score: level,
-      date: new Date().toISOString(),
-    };
-    
-    const existingScores = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    const newScores = [...existingScores, newScore]
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 10);
-    
-    setScores(newScores);
-    setShowEntryForm(false);
-    
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newScores));
-    
-    toast({
-      title: "Score Saved!",
-      description: `${alias} - Level ${level}`,
-      duration: 3000,
-    });
-  }, [level, toast]);
-
   return {
     playerPos,
     setPlayerPos,
@@ -122,7 +99,29 @@ export const useGameState = () => {
     scores,
     showEntryForm,
     setShowEntryForm,
-    handleSaveScore,
+    handleSaveScore: (alias: string) => {
+      const newScore: Score = {
+        alias,
+        score: level,
+        date: new Date().toISOString(),
+      };
+      
+      const existingScores = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      const newScores = [...existingScores, newScore]
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 10);
+      
+      setScores(newScores);
+      setShowEntryForm(false);
+      
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(newScores));
+      
+      toast({
+        title: "Score Saved!",
+        description: `${alias} - Level ${level}`,
+        duration: 3000,
+      });
+    },
     resetGame,
   };
 };

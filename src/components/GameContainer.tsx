@@ -30,6 +30,7 @@ const GameContainer = () => {
   );
 
   const handleStart = React.useCallback(() => {
+    console.log("Starting new game...");
     resetGame();
     initializeGame();
     setGameStarted(true);
