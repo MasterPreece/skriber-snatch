@@ -17,15 +17,20 @@ export const useGameLogic = (
   setScore: (score: number) => void,
 ) => {
   const checkCollision = useCallback(() => {
+    if (!gameStarted || gameOver || isWinner) return;
+
+    let allCollected = true;
+    let letterCollected = false;
+
     setLetters((prevLetters: LetterState[]) => {
-      let allCollected = true;
       const newLetters = prevLetters.map((letter) => {
         if (!letter.collected) {
           const distance = Math.sqrt(
             Math.pow(playerPos.x - letter.position.x, 2) +
-              Math.pow(playerPos.y - letter.position.y, 2)
+            Math.pow(playerPos.y - letter.position.y, 2)
           );
           if (distance < 30) {
+            letterCollected = true;
             return {
               ...letter,
               collected: true,
@@ -36,15 +41,40 @@ export const useGameLogic = (
         return letter;
       });
 
-      if (allCollected) {
-        const nextLevel = level + 1;
-        setLevel(nextLevel);
-        setScore(nextLevel);
-      }
-
       return newLetters;
     });
-  }, [playerPos, level, setLetters, setLevel, setScore]);
+
+    // Only proceed with level increment if we actually collected all letters
+    if (allCollected && letterCollected) {
+      const nextLevel = level + 1;
+      setLevel(nextLevel);
+      setScore(nextLevel);
+
+      // Generate new letters for the next level
+      const chars = ["S", "K", "R", "I", "B", "E", "R"];
+      const newLetters = chars.map((char) => ({
+        char,
+        position: {
+          x: Math.floor(Math.random() * 300),
+          y: Math.floor(Math.random() * 300),
+        },
+        collected: false,
+      }));
+      setLetters(newLetters);
+
+      // Add an additional bad dot for the new level
+      setBadDots(prevDots => [
+        ...prevDots,
+        {
+          position: {
+            x: Math.floor(Math.random() * 300),
+            y: Math.floor(Math.random() * 300),
+          },
+          speed: 1,
+        }
+      ]);
+    }
+  }, [playerPos, level, setLetters, setLevel, setScore, gameStarted, gameOver, isWinner, setBadDots]);
 
   // Bad dots movement logic
   useEffect(() => {
