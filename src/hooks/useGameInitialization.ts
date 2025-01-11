@@ -14,11 +14,17 @@ export const useGameInitialization = (
   setGameStarted: (started: boolean) => void,
 ) => {
   const initializeGame = useCallback(() => {
-    // Reset game state first
+    // First, reset all game states
+    setGameStarted(false);
     setGameOver(false);
     setIsWinner(false);
+    setLetters([]);
+    setBadDots([]);
+    setLevel(1);
+    setScore(0);
+    setPlayerPos({ x: 30, y: 30 });
     
-    // Small delay to ensure state is reset before starting new game
+    // Then initialize new game with a slight delay
     setTimeout(() => {
       const chars = ["S", "K", "R", "I", "B", "E", "R"];
       const newLetters = chars.map((char) => ({
@@ -45,8 +51,6 @@ export const useGameInitialization = (
       setLetters(newLetters);
       setBadDots(newBadDots);
       setPlayerPos({ x: 30, y: 30 });
-      setLevel(1);
-      setScore(0);
       setGameStarted(true);
     }, 100);
   }, [setLetters, setBadDots, setPlayerPos, setLevel, setScore, setIsWinner, setGameOver, setGameStarted]);

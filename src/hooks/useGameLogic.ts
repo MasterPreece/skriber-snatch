@@ -35,7 +35,7 @@ export const useGameLogic = ({
   setPlayerPos
 }: UseGameLogicProps) => {
   const checkCollision = useCallback(() => {
-    if (!gameStarted || gameOver || isWinner) return;
+    if (!gameStarted || gameOver || isWinner || !letters.length || !badDots.length) return;
 
     // Check collision with letters
     const updatedLetters = letters.map(letter => {
@@ -57,7 +57,7 @@ export const useGameLogic = ({
     // Check if all letters are collected
     if (updatedLetters.every(letter => letter.collected)) {
       setIsWinner(true);
-      setLevel(level + 1);
+      setLevel(prev => prev + 1);
       setScore(level);
     }
 
