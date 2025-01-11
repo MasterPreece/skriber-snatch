@@ -21,29 +21,6 @@ export const useGameLogic = (
     y: Math.floor(Math.random() * 300),
   });
 
-  const calculateDistance = (pos1: Position, pos2: Position): number => {
-    return Math.sqrt(
-      Math.pow(pos1.x - pos2.x, 2) + 
-      Math.pow(pos1.y - pos2.y, 2)
-    );
-  };
-
-  const getRandomDistantPosition = (playerPosition: Position, minDistance: number): Position => {
-    let position: Position;
-    let attempts = 0;
-    const maxAttempts = 50; // Prevent infinite loop
-
-    do {
-      position = getRandomPosition();
-      attempts++;
-    } while (
-      calculateDistance(position, playerPosition) < minDistance && 
-      attempts < maxAttempts
-    );
-
-    return position;
-  };
-
   const initializeLevel = useCallback(() => {
     const chars = ["S", "K", "R", "I", "B", "E", "R"];
     const newLetters = chars.map((char) => ({
@@ -54,16 +31,15 @@ export const useGameLogic = (
 
     const baseSpeed = 1 + (level * 0.5);
     const maxBadDots = Math.min(level, 10);
-    const minSpawnDistance = 150; // Minimum distance from player
     
     const newBadDots: BadDotState[] = Array(maxBadDots).fill(null).map(() => ({
-      position: getRandomDistantPosition(playerPos, minSpawnDistance),
+      position: getRandomPosition(),
       speed: baseSpeed,
     }));
 
     setLetters(newLetters);
     setBadDots(newBadDots);
-  }, [level, setLetters, setBadDots, playerPos]);
+  }, [level, setLetters, setBadDots]);
 
   const checkCollision = useCallback(() => {
     if (!gameStarted || gameOver || isWinner) return;
@@ -71,7 +47,10 @@ export const useGameLogic = (
     let allCollected = true;
     const newLetters = letters.map((letter) => {
       if (!letter.collected) {
-        const distance = calculateDistance(playerPos, letter.position);
+        const distance = Math.sqrt(
+          Math.pow(playerPos.x - letter.position.x, 2) +
+          Math.pow(playerPos.y - letter.position.y, 2)
+        );
         if (distance < 30) {
           return { ...letter, collected: true };
         }
@@ -80,14 +59,17 @@ export const useGameLogic = (
       return letter;
     });
 
+    // Only update letters if there's a change
     const hasLettersChanged = JSON.stringify(letters) !== JSON.stringify(newLetters);
     
     if (hasLettersChanged) {
       setLetters(newLetters);
       
+      // If all letters are collected, advance to next level
       if (allCollected) {
         setLevel(level + 1);
         setScore(level);
+        // Initialize the next level immediately
         setTimeout(() => initializeLevel(), 100);
       }
     }
@@ -137,9 +119,9 @@ export const useGameLogic = (
 
     const checkBadDotCollision = () => {
       const collision = badDots.some((dot) => {
-        const distance = calculateDistance(
-          { x: playerPos.x, y: playerPos.y },
-          { x: dot.position.x + 32, y: dot.position.y + 32 }
+        const distance = Math.sqrt(
+          Math.pow(playerPos.x - dot.position.x - 32, 2) +
+          Math.pow(playerPos.y - dot.position.y - 32, 2)
         );
         return distance < 12;
       });
