@@ -3,36 +3,61 @@ import { Toaster } from "@/components/ui/toaster";
 import WelcomeScreen from "./WelcomeScreen";
 import GameOverScreen from "./GameOverScreen";
 import WinnerScreen from "./WinnerScreen";
-import GamePlayArea from "./GamePlayArea";
+import ActiveGame from "./ActiveGame";
 import MobileControls from "./MobileControls";
+import TopScores from "./TopScores";
 import { useGameState } from "../hooks/useGameState";
+import { useGameInitialization } from "../hooks/useGameInitialization";
 import { useGameLogic } from "../hooks/useGameLogic";
 import { usePlayerMovement } from "../hooks/usePlayerMovement";
 import { useIsMobile } from "../hooks/use-mobile";
 
-interface GameBoardProps {
-  onStart: () => void;
-}
-
-const GameBoard = ({ onStart }: GameBoardProps) => {
+const GameBoard = () => {
   const {
     playerPos,
     setPlayerPos,
     letters,
     setLetters,
-    badDots,
-    setBadDots,
     isWinner,
     setIsWinner,
     level,
     setLevel,
+    score,
+    setScore,
     gameOver,
     setGameOver,
     gameStarted,
+    setGameStarted,
+    badDots,
+    setBadDots,
     showEntryForm,
-    setScore,
     handleSaveScore,
+    setShowEntryForm,
+    scores
   } = useGameState();
+
+  const { initializeGame } = useGameInitialization(
+    setLetters,
+    setBadDots,
+    setPlayerPos,
+    setLevel,
+    setScore,
+    setIsWinner,
+    setGameOver,
+    setGameStarted
+  );
+
+  const resetGame = () => {
+    setGameStarted(false);
+    setGameOver(false);
+    setIsWinner(false);
+    setLetters([]);
+    setBadDots([]);
+    setLevel(1);
+    setScore(0);
+    setPlayerPos({ x: 30, y: 30 });
+    setShowEntryForm(false);
+  };
 
   const { checkCollision } = useGameLogic(
     gameStarted,
@@ -90,37 +115,46 @@ const GameBoard = ({ onStart }: GameBoardProps) => {
     checkCollision();
   }, [playerPos, checkCollision]);
 
-  return (
-    <div className="relative w-[400px] h-[400px] bg-gradient-to-b from-[rgba(51,195,240,0.95)] to-[rgba(14,165,233,0.95)] overflow-hidden border border-sky-300 rounded-lg shadow-lg backdrop-blur-sm mt-4">
-      {!gameStarted && !gameOver && (
-        <WelcomeScreen onStart={onStart} />
-      )}
-      
-      {gameStarted && !gameOver && !isWinner && (
-        <GamePlayArea 
-          letters={letters}
-          playerPos={playerPos}
-          badDots={badDots}
-          level={level}
-        />
-      )}
-      
-      {isWinner && (
-        <WinnerScreen 
-          score={level}
-          showEntryForm={showEntryForm}
-          onSave={handleSaveScore}
-          onRestart={onStart}
-        />
-      )}
-      
-      {gameOver && !isWinner && (
-        <GameOverScreen 
-          onRestart={onStart}
-          level={level}
-        />
-      )}
+  // Reset game when component mounts
+  React.useEffect(() => {
+    resetGame();
+  }, []);
 
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen py-8 bg-[url('/lovable-uploads/6a584446-6e3e-4052-acb6-34952ba1d772.png')] bg-cover bg-center bg-no-repeat">
+      <TopScores scores={scores} />
+      
+      <div className="relative w-[400px] h-[400px] bg-gradient-to-b from-[rgba(51,195,240,0.95)] to-[rgba(14,165,233,0.95)] overflow-hidden border border-sky-300 rounded-lg shadow-lg backdrop-blur-sm mt-4">
+        {!gameStarted && !gameOver && (
+          <WelcomeScreen onStart={initializeGame} />
+        )}
+        
+        {gameStarted && !gameOver && !isWinner && (
+          <ActiveGame 
+            letters={letters}
+            playerPos={playerPos}
+            badDots={badDots}
+            level={level}
+          />
+        )}
+        
+        {isWinner && (
+          <WinnerScreen 
+            score={level}
+            showEntryForm={showEntryForm}
+            onSave={handleSaveScore}
+            onRestart={initializeGame}
+          />
+        )}
+        
+        {gameOver && !isWinner && (
+          <GameOverScreen 
+            onRestart={initializeGame}
+            level={level}
+          />
+        )}
+      </div>
+      
       {isMobile && gameStarted && !gameOver && !isWinner && (
         <div className="mt-8">
           <MobileControls onMove={handleMobileMove} />

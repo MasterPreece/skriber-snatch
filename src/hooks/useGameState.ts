@@ -22,19 +22,6 @@ export const useGameState = () => {
     return savedScores ? JSON.parse(savedScores) : [];
   });
 
-  const resetGame = useCallback(() => {
-    console.log("Resetting game state...");
-    setPlayerPos({ x: 30, y: 30 });
-    setLetters([]);
-    setIsWinner(false);
-    setLevel(1);
-    setScore(0);
-    setGameOver(false);
-    setGameStarted(false);
-    setBadDots([]);
-    setShowEntryForm(false);
-  }, []);
-
   const getRandomPositionAwayFromPlayer = (playerPos: Position): Position => {
     let position: Position;
     do {
@@ -79,6 +66,37 @@ export const useGameState = () => {
     }
   }, [letters, level, gameStarted, gameOver, isWinner, playerPos]);
 
+  // Reset level when game starts
+  useEffect(() => {
+    if (gameStarted) {
+      setLevel(1);
+    }
+  }, [gameStarted]);
+
+  const handleSaveScore = useCallback((alias: string) => {
+    const newScore: Score = {
+      alias,
+      score: level,
+      date: new Date().toISOString(),
+    };
+    
+    const existingScores = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    const newScores = [...existingScores, newScore]
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 10);
+    
+    setScores(newScores);
+    setShowEntryForm(false);
+    
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(newScores));
+    
+    toast({
+      title: "Score Saved!",
+      description: `${alias} - Level ${level}`,
+      duration: 3000,
+    });
+  }, [level, toast]);
+
   return {
     playerPos,
     setPlayerPos,
@@ -99,29 +117,6 @@ export const useGameState = () => {
     scores,
     showEntryForm,
     setShowEntryForm,
-    handleSaveScore: (alias: string) => {
-      const newScore: Score = {
-        alias,
-        score: level,
-        date: new Date().toISOString(),
-      };
-      
-      const existingScores = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-      const newScores = [...existingScores, newScore]
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 10);
-      
-      setScores(newScores);
-      setShowEntryForm(false);
-      
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newScores));
-      
-      toast({
-        title: "Score Saved!",
-        description: `${alias} - Level ${level}`,
-        duration: 3000,
-      });
-    },
-    resetGame,
+    handleSaveScore,
   };
 };
