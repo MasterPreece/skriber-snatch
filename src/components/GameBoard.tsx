@@ -189,21 +189,21 @@ const GameBoard = () => {
       
       setPlayerPos((prev) => {
         let newPos = { ...prev };
-        const maxWidth = 300;
-        const maxHeight = 300;
+        const maxWidth = 350;  // Increased from 300 to account for board size
+        const maxHeight = 350; // Increased from 300 to account for board size
 
         switch (e.key) {
           case "ArrowUp":
             newPos.y = Math.max(0, prev.y - speed);
             break;
           case "ArrowDown":
-            newPos.y = Math.min(maxHeight - 30, prev.y + speed);
+            newPos.y = Math.min(maxHeight, prev.y + speed);
             break;
           case "ArrowLeft":
             newPos.x = Math.max(0, prev.x - speed);
             break;
           case "ArrowRight":
-            newPos.x = Math.min(maxWidth - 30, prev.x + speed);
+            newPos.x = Math.min(maxWidth, prev.x + speed);
             break;
         }
         return newPos;
@@ -212,7 +212,7 @@ const GameBoard = () => {
 
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [gameStarted, gameOver, isWinner]);
+  }, [gameStarted, gameOver, isWinner, speed]);
 
   useEffect(() => {
     checkCollision();
