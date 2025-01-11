@@ -34,12 +34,16 @@ export const useGameLogic = (
       return letter;
     });
 
-    setLetters(newLetters);
-
-    if (allCollected) {
-      const newLevel = level + 1;
-      setLevel(newLevel);
-      setScore(newLevel - 1);
+    // Only update letters if there's a change
+    if (JSON.stringify(letters) !== JSON.stringify(newLetters)) {
+      setLetters(newLetters);
+      
+      // Check if all letters were just collected
+      if (allCollected && !letters.every(l => l.collected)) {
+        const newLevel = level + 1;
+        setLevel(newLevel);
+        setScore(newLevel - 1);
+      }
     }
   }, [playerPos, level, letters, gameStarted, gameOver, isWinner, setLetters, setLevel, setScore]);
 
