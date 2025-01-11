@@ -3,7 +3,7 @@ import type { Position, LetterState, BadDotState, Score } from '../types/game';
 import { useToast } from '@/components/ui/use-toast';
 
 const STORAGE_KEY = 'skriber-snatch-scores';
-const MIN_SPAWN_DISTANCE = 100; // Minimum distance from player for bad dot spawns
+const MIN_SPAWN_DISTANCE = 100;
 
 export const useGameState = () => {
   const [playerPos, setPlayerPos] = useState<Position>({ x: 30, y: 30 });
@@ -29,12 +29,10 @@ export const useGameState = () => {
         x: Math.floor(Math.random() * 300),
         y: Math.floor(Math.random() * 300),
       };
-      // Calculate distance from player
       const distance = Math.sqrt(
         Math.pow(position.x - playerPos.x, 2) + 
         Math.pow(position.y - playerPos.y, 2)
       );
-      // If distance is greater than minimum, accept the position
       if (distance >= MIN_SPAWN_DISTANCE) {
         break;
       }
@@ -45,7 +43,8 @@ export const useGameState = () => {
 
   useEffect(() => {
     if (gameStarted && !gameOver && !isWinner && letters.every(l => l.collected)) {
-      // Level completed, initialize next level
+      const nextLevel = level + 1;
+      
       const chars = ["S", "K", "R", "I", "B", "E", "R"];
       const newLetters = chars.map((char) => ({
         char,
@@ -53,15 +52,18 @@ export const useGameState = () => {
         collected: false,
       }));
 
-      const baseSpeed = 1 + (level * 0.5); // Increase speed with each level
-      const newBadDots: BadDotState[] = Array(level).fill(null).map(() => ({
+      const baseSpeed = 1 + (nextLevel * 0.5);
+      // Limit the number of bad dots to prevent overwhelming the player
+      const maxBadDots = Math.min(nextLevel, 10); // Cap at 10 bad dots maximum
+      
+      const newBadDots: BadDotState[] = Array(maxBadDots).fill(null).map(() => ({
         position: getRandomPositionAwayFromPlayer(playerPos),
         speed: baseSpeed,
       }));
 
       setLetters(newLetters);
       setBadDots(newBadDots);
-      setLevel(prev => prev + 1); // Increment by 1 instead of 2
+      setLevel(nextLevel);
     }
   }, [letters, level, gameStarted, gameOver, isWinner, playerPos]);
 
