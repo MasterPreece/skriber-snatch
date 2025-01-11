@@ -1,6 +1,8 @@
 import { useCallback } from 'react';
 import type { Position, LetterState, BadDotState } from '../types/game';
 
+const PLAYER_EMOJIS = ["🍆", "🥑", "🍎", "🍊", "🍇", "🍓", "🍌", "🥝", "🍍", "🥭"];
+
 export const useGameInitialization = (
   setLetters: (letters: LetterState[]) => void,
   setBadDots: (dots: BadDotState[]) => void,
@@ -52,6 +54,9 @@ export const useGameInitialization = (
         }
       }
     });
+
+    const randomEmoji = PLAYER_EMOJIS[Math.floor(Math.random() * PLAYER_EMOJIS.length)];
+    (window as any).currentPlayerEmoji = randomEmoji;
 
     setLetters(newLetters);
     setBadDots(newBadDots);

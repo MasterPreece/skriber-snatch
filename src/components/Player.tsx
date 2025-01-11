@@ -5,9 +5,10 @@ interface PlayerProps {
     x: number;
     y: number;
   };
+  emoji: string;
 }
 
-const Player = ({ position }: PlayerProps) => {
+const Player = ({ position, emoji }: PlayerProps) => {
   return (
     <div
       className="absolute w-6 h-6 flex items-center justify-center transition-all duration-75 ease-linear"
@@ -15,7 +16,7 @@ const Player = ({ position }: PlayerProps) => {
         transform: `translate(${position.x}px, ${position.y}px)`,
       }}
     >
-      <span className="text-[1.4em]">🍆</span>
+      <span className="text-[1.4em]">{emoji}</span>
     </div>
   );
 };

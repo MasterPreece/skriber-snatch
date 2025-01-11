@@ -22,7 +22,7 @@ const ActiveGame = ({ letters, playerPos, badDots, timeLeft }: ActiveGameProps) 
       <div className="absolute top-4 right-4 text-2xl font-bold text-white drop-shadow-md">
         {currentScore.toLocaleString()}
       </div>
-      <Player position={playerPos} />
+      <Player position={playerPos} emoji={(window as any).currentPlayerEmoji} />
       {letters.map((letter, index) => (
         !letter.collected && (
           <Letter
