@@ -34,15 +34,17 @@ export const useGameLogic = (
       return letter;
     });
 
-    // Only update letters if there's a change
-    if (JSON.stringify(letters) !== JSON.stringify(newLetters)) {
+    // Only update letters if there's a change and we're not already processing a level change
+    const hasLettersChanged = JSON.stringify(letters) !== JSON.stringify(newLetters);
+    const wasAllCollectedBefore = letters.every(l => l.collected);
+    
+    if (hasLettersChanged) {
       setLetters(newLetters);
       
-      // Check if all letters were just collected
-      if (allCollected && !letters.every(l => l.collected)) {
-        const newLevel = level + 1;
-        setLevel(newLevel);
-        setScore(newLevel - 1);
+      // Only increment level if we just collected all letters and they weren't all collected before
+      if (allCollected && !wasAllCollectedBefore) {
+        setLevel(level + 1);
+        setScore(level);
       }
     }
   }, [playerPos, level, letters, gameStarted, gameOver, isWinner, setLetters, setLevel, setScore]);
