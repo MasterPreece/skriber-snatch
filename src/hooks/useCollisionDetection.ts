@@ -10,6 +10,8 @@ interface UseCollisionDetectionProps {
   setIsWinner: (winner: boolean) => void;
   setLevel: (level: number) => void;
   setScore: (score: number) => void;
+  level: number;  // Added this prop
+  score: number;  // Added this prop
 }
 
 export const useCollisionDetection = ({
@@ -21,6 +23,8 @@ export const useCollisionDetection = ({
   setIsWinner,
   setLevel,
   setScore,
+  level,
+  score,
 }: UseCollisionDetectionProps) => {
   const checkLetterCollision = useCallback(() => {
     let allCollected = true;
@@ -49,7 +53,7 @@ export const useCollisionDetection = ({
       const newScore = score + 100;
       setScore(newScore);
     }
-  }, [playerPos, setLetters, setIsWinner, setLevel, setScore]);
+  }, [playerPos, setLetters, setIsWinner, setLevel, setScore, level, score]);
 
   const checkBadDotCollision = useCallback(() => {
     const collision = badDots.some((dot) => {
@@ -57,7 +61,7 @@ export const useCollisionDetection = ({
         Math.pow(playerPos.x - dot.position.x, 2) +
         Math.pow(playerPos.y - dot.position.y, 2)
       );
-      return distance < 32; // Collision radius matching visual size
+      return distance < 32;
     });
 
     if (collision) {

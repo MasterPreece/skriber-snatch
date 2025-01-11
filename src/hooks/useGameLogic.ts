@@ -16,6 +16,7 @@ export const useGameLogic = (
   setGameOver: (over: boolean) => void,
   setLevel: (level: number) => void,
   setScore: (score: number) => void,
+  score: number,
 ) => {
   const { checkLetterCollision, checkBadDotCollision } = useCollisionDetection({
     playerPos,
@@ -26,6 +27,8 @@ export const useGameLogic = (
     setIsWinner,
     setLevel,
     setScore,
+    level,
+    score,
   });
 
   const checkCollision = useCallback(() => {
