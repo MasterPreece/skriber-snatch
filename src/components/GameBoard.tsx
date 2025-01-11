@@ -77,7 +77,7 @@ const GameBoard = () => {
     
     setPlayerPos((prev) => {
       let newPos = { ...prev };
-      const speed = 33.75; // Increased from 22.5 to 33.75 (another 1.5x faster)
+      const speed = 33.75;
       const maxWidth = 350;
       const maxHeight = 350;
 
@@ -108,6 +108,12 @@ const GameBoard = () => {
     setIsWinner(true);
     setShowEntryForm(true);
   };
+
+  React.useEffect(() => {
+    if (letters.every(l => l.collected) && gameStarted && !gameOver && !isWinner) {
+      handleGameWin();
+    }
+  }, [letters, gameStarted, gameOver, isWinner, level]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-8 bg-[url('/lovable-uploads/6a584446-6e3e-4052-acb6-34952ba1d772.png')] bg-cover bg-center bg-no-repeat">
