@@ -16,6 +16,31 @@ export const useGameLogic = (
   setLevel: (level: number) => void,
   setScore: (score: number) => void,
 ) => {
+  const getRandomPosition = (): Position => ({
+    x: Math.floor(Math.random() * 300),
+    y: Math.floor(Math.random() * 300),
+  });
+
+  const initializeLevel = useCallback(() => {
+    const chars = ["S", "K", "R", "I", "B", "E", "R"];
+    const newLetters = chars.map((char) => ({
+      char,
+      position: getRandomPosition(),
+      collected: false,
+    }));
+
+    const baseSpeed = 1 + (level * 0.5);
+    const maxBadDots = Math.min(level, 10);
+    
+    const newBadDots: BadDotState[] = Array(maxBadDots).fill(null).map(() => ({
+      position: getRandomPosition(),
+      speed: baseSpeed,
+    }));
+
+    setLetters(newLetters);
+    setBadDots(newBadDots);
+  }, [level, setLetters, setBadDots]);
+
   const checkCollision = useCallback(() => {
     if (!gameStarted || gameOver || isWinner) return;
 
@@ -34,20 +59,28 @@ export const useGameLogic = (
       return letter;
     });
 
-    // Only update letters if there's a change and we're not already processing a level change
+    // Only update letters if there's a change
     const hasLettersChanged = JSON.stringify(letters) !== JSON.stringify(newLetters);
-    const wasAllCollectedBefore = letters.every(l => l.collected);
     
     if (hasLettersChanged) {
       setLetters(newLetters);
       
-      // Only increment level if we just collected all letters and they weren't all collected before
-      if (allCollected && !wasAllCollectedBefore) {
+      // If all letters are collected, advance to next level
+      if (allCollected) {
         setLevel(level + 1);
         setScore(level);
+        // Initialize the next level immediately
+        setTimeout(() => initializeLevel(), 100);
       }
     }
-  }, [playerPos, level, letters, gameStarted, gameOver, isWinner, setLetters, setLevel, setScore]);
+  }, [playerPos, level, letters, gameStarted, gameOver, isWinner, setLetters, setLevel, setScore, initializeLevel]);
+
+  // Initialize level when game starts
+  useEffect(() => {
+    if (gameStarted && !gameOver && !isWinner) {
+      initializeLevel();
+    }
+  }, [gameStarted, gameOver, isWinner, initializeLevel]);
 
   // Bad dots movement logic
   useEffect(() => {
