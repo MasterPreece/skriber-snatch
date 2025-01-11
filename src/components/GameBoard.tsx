@@ -115,6 +115,7 @@ const GameBoard = () => {
     checkCollision();
   }, [playerPos, checkCollision]);
 
+  // Reset game when component mounts
   React.useEffect(() => {
     resetGame();
   }, []);
@@ -150,7 +151,6 @@ const GameBoard = () => {
           <GameOverScreen 
             onRestart={initializeGame}
             level={level}
-            onSave={handleSaveScore}
           />
         )}
       </div>

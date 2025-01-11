@@ -17,62 +17,33 @@ export const useGameLogic = (
   setScore: (score: number) => void,
 ) => {
   const checkCollision = useCallback(() => {
-    if (!gameStarted || gameOver || isWinner) return;
-
-    // Count collected letters before updating
-    const collectedLetters = letters.filter(l => l.collected).length;
-    let letterCollectedThisCheck = false;
-
     setLetters((prevLetters: LetterState[]) => {
-      return prevLetters.map((letter) => {
+      let allCollected = true;
+      const newLetters = prevLetters.map((letter) => {
         if (!letter.collected) {
           const distance = Math.sqrt(
             Math.pow(playerPos.x - letter.position.x, 2) +
-            Math.pow(playerPos.y - letter.position.y, 2)
+              Math.pow(playerPos.y - letter.position.y, 2)
           );
           if (distance < 30) {
-            letterCollectedThisCheck = true;
             return {
               ...letter,
               collected: true,
             };
           }
+          allCollected = false;
         }
         return letter;
       });
+
+      if (allCollected) {
+        setLevel(level + 1);
+        setScore(level);
+      }
+
+      return newLetters;
     });
-
-    // Check if player has collected all 7 letters
-    if (letterCollectedThisCheck && collectedLetters === 6) { // If we just collected the 7th letter
-      const nextLevel = level + 1;
-      setLevel(nextLevel);
-      setScore(nextLevel);
-
-      // Generate new letters for the next level
-      const chars = ["S", "K", "R", "I", "B", "E", "R"];
-      const newLetters = chars.map((char) => ({
-        char,
-        position: {
-          x: Math.floor(Math.random() * 300),
-          y: Math.floor(Math.random() * 300),
-        },
-        collected: false,
-      }));
-      setLetters(newLetters);
-
-      // Add an additional bad dot for the new level
-      setBadDots(prevDots => [
-        ...prevDots,
-        {
-          position: {
-            x: Math.floor(Math.random() * 300),
-            y: Math.floor(Math.random() * 300),
-          },
-          speed: 1,
-        }
-      ]);
-    }
-  }, [playerPos, level, setLetters, setLevel, setScore, gameStarted, gameOver, isWinner, setBadDots, letters]);
+  }, [playerPos, level, setLetters, setLevel, setScore]);
 
   // Bad dots movement logic
   useEffect(() => {

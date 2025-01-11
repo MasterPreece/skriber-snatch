@@ -40,7 +40,7 @@ export const useGameInitialization = (
     setBadDots(newBadDots);
     setPlayerPos({ x: 30, y: 30 });
     setLevel(1);
-    setScore(1);
+    setScore(0);
     setIsWinner(false);
     setGameOver(false);
     setGameStarted(true);

@@ -18,5 +18,4 @@ export interface Score {
   alias: string;
   score: number;
   date: string;
-  id: string;
 }

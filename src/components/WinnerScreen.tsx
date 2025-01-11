@@ -22,7 +22,7 @@ const WinnerScreen = ({ score, showEntryForm, onSave, onRestart }: WinnerScreenP
   }, []);
 
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-r from-purple-500/30 to-pink-500/30">
+    <div className="absolute inset-0 flex flex-col items-center justify-center">
       <WinnerText level={score} />
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-4">
         <div className="text-2xl font-bold text-purple-600 animate-bounce">
@@ -34,7 +34,7 @@ const WinnerScreen = ({ score, showEntryForm, onSave, onRestart }: WinnerScreenP
           showButton && (
             <Button 
               onClick={onRestart}
-              className="text-lg px-6 py-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+              className="text-lg px-6 py-4"
             >
               Play Again
             </Button>
