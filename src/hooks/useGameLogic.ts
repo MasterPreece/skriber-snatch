@@ -20,7 +20,7 @@ export const useGameLogic = (
     if (!gameStarted || gameOver || isWinner) return;
 
     // Count collected letters before updating
-    const collectedCount = letters.filter(l => l.collected).length;
+    const collectedLetters = letters.filter(l => l.collected).length;
     let letterCollectedThisCheck = false;
 
     setLetters((prevLetters: LetterState[]) => {
@@ -43,7 +43,7 @@ export const useGameLogic = (
     });
 
     // Check if player has collected all 7 letters
-    if (letterCollectedThisCheck && collectedCount === 6) { // 6 because we're checking before the state update
+    if (letterCollectedThisCheck && collectedLetters === 6) { // If we just collected the 7th letter
       const nextLevel = level + 1;
       setLevel(nextLevel);
       setScore(nextLevel);
