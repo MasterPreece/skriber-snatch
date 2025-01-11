@@ -4,6 +4,9 @@ import Player from "./Player";
 import Letter from "./Letter";
 import WinnerText from "./WinnerText";
 import BadDot from "./BadDot";
+import Leaderboard from "./Leaderboard";
+import LeaderboardEntry from "./LeaderboardEntry";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Position {
   x: number;
@@ -20,8 +23,14 @@ interface BadDotState {
   position: Position;
 }
 
+interface Score {
+  alias: string;
+  score: number;
+  date: string;
+}
+
 const GameBoard = () => {
-  const [playerPos, setPlayerPos] = useState<Position>({ x: 30, y: 30 }); // Start in top-left
+  const [playerPos, setPlayerPos] = useState<Position>({ x: 30, y: 30 });
   const [letters, setLetters] = useState<LetterState[]>([]);
   const [isWinner, setIsWinner] = useState(false);
   const [timeLeft, setTimeLeft] = useState(30);
@@ -29,6 +38,9 @@ const GameBoard = () => {
   const [gameOver, setGameOver] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
   const [badDots, setBadDots] = useState<BadDotState[]>([]);
+  const [scores, setScores] = useState<Score[]>([]);
+  const [showEntryForm, setShowEntryForm] = useState(false);
+  const { toast } = useToast();
   const speed = 15;
   const badDotSpeed = 1;
 
@@ -218,8 +230,37 @@ const GameBoard = () => {
     checkCollision();
   }, [playerPos, checkCollision]);
 
+  const handleSaveScore = (alias: string) => {
+    const newScore = {
+      alias,
+      score,
+      date: new Date().toISOString(),
+    };
+    
+    const newScores = [...scores, newScore]
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 10);
+    
+    setScores(newScores);
+    setShowEntryForm(false);
+    
+    toast({
+      title: "Score Saved!",
+      description: `${alias} - ${score.toLocaleString()} points`,
+    });
+  };
+
+  useEffect(() => {
+    if (isWinner && !showEntryForm) {
+      const lowestScore = scores[9]?.score || 0;
+      if (scores.length < 10 || score > lowestScore) {
+        setShowEntryForm(true);
+      }
+    }
+  }, [isWinner, score, scores, showEntryForm]);
+
   return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className="flex flex-col items-center justify-center min-h-screen">
       <div className="relative w-[400px] h-[400px] bg-gradient-to-b from-[#e6e9f0] to-[#eef1f5] overflow-hidden border border-gray-200 rounded-lg shadow-lg">
         {!gameStarted && !gameOver && (
           <div className="absolute inset-0 flex items-center justify-center">
@@ -263,12 +304,16 @@ const GameBoard = () => {
               <div className="text-2xl font-bold text-purple-600 animate-bounce">
                 Score: {score.toLocaleString()}
               </div>
-              <Button 
-                onClick={initializeGame}
-                className="text-lg px-6 py-4"
-              >
-                Play Again
-              </Button>
+              {showEntryForm ? (
+                <LeaderboardEntry score={score} onSave={handleSaveScore} />
+              ) : (
+                <Button 
+                  onClick={initializeGame}
+                  className="text-lg px-6 py-4"
+                >
+                  Play Again
+                </Button>
+              )}
             </div>
           </>
         )}
@@ -287,6 +332,10 @@ const GameBoard = () => {
           </div>
         )}
       </div>
+      
+      {scores.length > 0 && (
+        <Leaderboard scores={scores} />
+      )}
     </div>
   );
 };
