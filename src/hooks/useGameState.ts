@@ -14,7 +14,14 @@ const fetchScores = async (): Promise<Score[]> => {
     .limit(10);
 
   if (error) throw error;
-  return data;
+  
+  // Map the database response to our Score type
+  return data.map(item => ({
+    id: item.id,
+    alias: item.alias,
+    score: item.score,
+    date: item.created_at
+  }));
 };
 
 export const useGameState = () => {
