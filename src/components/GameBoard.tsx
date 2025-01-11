@@ -7,6 +7,7 @@ import WinnerText from "./WinnerText";
 import BadDot from "./BadDot";
 import LeaderboardEntry from "./LeaderboardEntry";
 import MobileControls from "./MobileControls";
+import TopScores from "./TopScores";
 import { useGameState } from "../hooks/useGameState";
 import { useGameInitialization } from "../hooks/useGameInitialization";
 import { useGameLogic } from "../hooks/useGameLogic";
@@ -33,7 +34,8 @@ const GameBoard = () => {
     setBadDots,
     showEntryForm,
     handleSaveScore,
-    calculateScore
+    calculateScore,
+    scores
   } = useGameState();
 
   const { initializeGame } = useGameInitialization(
@@ -99,6 +101,7 @@ const GameBoard = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-8">
+      <TopScores scores={scores} />
       <div className="relative w-[400px] h-[400px] bg-gradient-to-b from-[#e6e9f0] to-[#eef1f5] overflow-hidden border border-gray-200 rounded-lg shadow-lg">
         {!gameStarted && !gameOver && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-8 p-8 bg-white">
