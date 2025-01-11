@@ -1,4 +1,4 @@
-import React from "react";
+import { Toaster } from "@/components/ui/toaster";
 import { Button } from "@/components/ui/button";
 import Player from "./Player";
 import Letter from "./Letter";
@@ -110,7 +110,7 @@ const GameBoard = () => {
           </>
         )}
         
-        {isWinner && (
+        {isWinner && gameOver && (
           <>
             <WinnerText />
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-4">
