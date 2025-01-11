@@ -71,7 +71,7 @@ const GameBoard = () => {
   }, [playerPos, checkCollision]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
+    <div className="flex flex-col items-center justify-center min-h-screen py-8">
       <div className="relative w-[400px] h-[400px] bg-gradient-to-b from-[#e6e9f0] to-[#eef1f5] overflow-hidden border border-gray-200 rounded-lg shadow-lg">
         {!gameStarted && !gameOver && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-8 p-8 bg-white">
@@ -147,9 +147,10 @@ const GameBoard = () => {
         )}
       </div>
       
-      {scores.length > 0 && (
+      <div className="mt-8 w-full max-w-md">
         <Leaderboard scores={scores} />
-      )}
+      </div>
+      <Toaster />
     </div>
   );
 };
