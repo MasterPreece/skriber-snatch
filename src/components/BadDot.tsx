@@ -6,30 +6,38 @@ interface BadDotProps {
     y: number;
   };
   speed: number;
+  playerPos: {
+    x: number;
+    y: number;
+  };
 }
 
-const BadDot = ({ position, speed }: BadDotProps) => {
+const BadDot = ({ position, speed, playerPos }: BadDotProps) => {
   const [currentPos, setCurrentPos] = useState(position);
 
   useEffect(() => {
     const moveInterval = setInterval(() => {
       setCurrentPos((prev) => {
-        const angle = Math.random() * 2 * Math.PI;
-        const moveDistance = speed * 2;
+        // Calculate direction towards player
+        const dx = playerPos.x - prev.x;
+        const dy = playerPos.y - prev.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
         
-        let newX = prev.x + Math.cos(angle) * moveDistance;
-        let newY = prev.y + Math.sin(angle) * moveDistance;
+        // Normalize direction and apply speed
+        const moveDistance = speed * 2;
+        const newX = prev.x + (dx / distance) * moveDistance;
+        const newY = prev.y + (dy / distance) * moveDistance;
         
         // Keep the bad dot within bounds
-        newX = Math.max(0, Math.min(350, newX));
-        newY = Math.max(0, Math.min(350, newY));
-        
-        return { x: newX, y: newY };
+        return {
+          x: Math.max(0, Math.min(350, newX)),
+          y: Math.max(0, Math.min(350, newY))
+        };
       });
     }, 50); // Update position every 50ms
 
     return () => clearInterval(moveInterval);
-  }, [speed]);
+  }, [speed, playerPos]);
 
   return (
     <div
