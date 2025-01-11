@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useRef } from 'react';
-import type { Position, LetterState, BadDotState } from '../types/game';
+import type { Position, LetterState, BadDotState, SnowflakeState } from '../types/game';
 
 export const useGameLogic = (
   gameStarted: boolean,
@@ -15,9 +15,11 @@ export const useGameLogic = (
   setGameOver: (over: boolean) => void,
   setLevel: (level: number) => void,
   setScore: (score: number) => void,
+  snowflake: SnowflakeState,
+  setSnowflake: (value: SnowflakeState) => void,
 ) => {
-  // Use ref instead of state to avoid React queue issues
   const canBadDotsMove = useRef(true);
+  const isFrozen = useRef(false);
 
   const getRandomPosition = (): Position => ({
     x: Math.floor(Math.random() * 300),
@@ -40,18 +42,42 @@ export const useGameLogic = (
       speed: baseSpeed,
     }));
 
+    // Initialize snowflake in a random position
+    const newSnowflake: SnowflakeState = {
+      position: getRandomPosition(),
+      collected: false,
+    };
+
     setLetters(newLetters);
     setBadDots(newBadDots);
+    setSnowflake(newSnowflake);
     
     // Pause bad dot movement for 0.5 seconds when level starts
     canBadDotsMove.current = false;
     setTimeout(() => {
       canBadDotsMove.current = true;
     }, 500);
-  }, [level, setLetters, setBadDots]);
+  }, [level, setLetters, setBadDots, setSnowflake]);
 
   const checkCollision = useCallback(() => {
     if (!gameStarted || gameOver || isWinner) return;
+
+    // Check snowflake collection
+    if (!snowflake.collected) {
+      const snowflakeDistance = Math.sqrt(
+        Math.pow(playerPos.x - snowflake.position.x, 2) +
+        Math.pow(playerPos.y - snowflake.position.y, 2)
+      );
+      
+      if (snowflakeDistance < 30) {
+        setSnowflake({ ...snowflake, collected: true });
+        // Freeze bad dots for 2 seconds
+        isFrozen.current = true;
+        setTimeout(() => {
+          isFrozen.current = false;
+        }, 2000);
+      }
+    }
 
     let allCollected = true;
     const newLetters = letters.map((letter) => {
@@ -82,7 +108,7 @@ export const useGameLogic = (
         setTimeout(() => initializeLevel(), 100);
       }
     }
-  }, [playerPos, level, letters, gameStarted, gameOver, isWinner, setLetters, setLevel, setScore, initializeLevel]);
+  }, [playerPos, level, letters, gameStarted, gameOver, isWinner, setLetters, setLevel, setScore, initializeLevel, snowflake, setSnowflake]);
 
   // Initialize level when game starts
   useEffect(() => {
@@ -93,7 +119,7 @@ export const useGameLogic = (
 
   // Bad dots movement logic
   useEffect(() => {
-    if (!gameStarted || gameOver || isWinner || !canBadDotsMove.current) return;
+    if (!gameStarted || gameOver || isWinner || !canBadDotsMove.current || isFrozen.current) return;
 
     const moveInterval = setInterval(() => {
       const newBadDots = badDots.map((dot) => {

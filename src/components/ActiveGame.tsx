@@ -2,16 +2,18 @@ import React from 'react';
 import Player from './Player';
 import Letter from './Letter';
 import BadDot from './BadDot';
-import type { Position, LetterState, BadDotState } from '../types/game';
+import Snowflake from './Snowflake';
+import type { Position, LetterState, BadDotState, SnowflakeState } from '../types/game';
 
 interface ActiveGameProps {
   letters: LetterState[];
   playerPos: Position;
   badDots: BadDotState[];
   level: number;
+  snowflake: SnowflakeState;
 }
 
-const ActiveGame = ({ letters, playerPos, badDots, level }: ActiveGameProps) => {
+const ActiveGame = ({ letters, playerPos, badDots, level, snowflake }: ActiveGameProps) => {
   return (
     <>
       <div className="absolute top-4 left-4 text-2xl font-bold text-white drop-shadow-md">
@@ -33,6 +35,9 @@ const ActiveGame = ({ letters, playerPos, badDots, level }: ActiveGameProps) => 
       {badDots.map((dot, index) => (
         <BadDot key={index} position={dot.position} speed={dot.speed} />
       ))}
+      {!snowflake.collected && (
+        <Snowflake position={snowflake.position} />
+      )}
     </>
   );
 };

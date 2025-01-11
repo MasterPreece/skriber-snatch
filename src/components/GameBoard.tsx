@@ -11,6 +11,7 @@ import { useGameInitialization } from "../hooks/useGameInitialization";
 import { useGameLogic } from "../hooks/useGameLogic";
 import { usePlayerMovement } from "../hooks/usePlayerMovement";
 import { useIsMobile } from "../hooks/use-mobile";
+import type { SnowflakeState } from "../types/game";
 
 const GameBoard = () => {
   const {
@@ -36,6 +37,11 @@ const GameBoard = () => {
     scores
   } = useGameState();
 
+  const [snowflake, setSnowflake] = React.useState<SnowflakeState>({
+    position: { x: 0, y: 0 },
+    collected: false,
+  });
+
   const canMoveRef = React.useRef(true);
 
   const { initializeGame } = useGameInitialization(
@@ -59,6 +65,7 @@ const GameBoard = () => {
     setScore(0);
     setPlayerPos({ x: 30, y: 30 });
     setShowEntryForm(false);
+    setSnowflake({ position: { x: 0, y: 0 }, collected: false });
   };
 
   const { checkCollision } = useGameLogic(
@@ -74,7 +81,9 @@ const GameBoard = () => {
     setIsWinner,
     setGameOver,
     setLevel,
-    setScore
+    setScore,
+    snowflake,
+    setSnowflake
   );
 
   usePlayerMovement(
@@ -154,6 +163,7 @@ const GameBoard = () => {
             playerPos={playerPos}
             badDots={badDots}
             level={level}
+            snowflake={snowflake}
           />
         )}
         

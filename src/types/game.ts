@@ -19,3 +19,8 @@ export interface Score {
   score: number;
   date: string;
 }
+
+export interface SnowflakeState {
+  position: Position;
+  collected: boolean;
+}
