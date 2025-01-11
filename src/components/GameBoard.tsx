@@ -7,10 +7,12 @@ import WinnerText from "./WinnerText";
 import BadDot from "./BadDot";
 import Leaderboard from "./Leaderboard";
 import LeaderboardEntry from "./LeaderboardEntry";
+import MobileControls from "./MobileControls";
 import { useGameState } from "../hooks/useGameState";
 import { useGameInitialization } from "../hooks/useGameInitialization";
 import { useGameLogic } from "../hooks/useGameLogic";
 import { usePlayerMovement } from "../hooks/usePlayerMovement";
+import { useIsMobile } from "../hooks/use-mobile";
 
 const GameBoard = () => {
   const {
@@ -64,7 +66,34 @@ const GameBoard = () => {
     calculateScore
   );
 
-  usePlayerMovement(gameStarted, gameOver, isWinner, setPlayerPos);
+  const isMobile = useIsMobile();
+
+  const handleMobileMove = (direction: "ArrowUp" | "ArrowDown" | "ArrowLeft" | "ArrowRight") => {
+    if (!gameStarted || gameOver || isWinner) return;
+    
+    setPlayerPos((prev) => {
+      let newPos = { ...prev };
+      const speed = 15;
+      const maxWidth = 350;
+      const maxHeight = 350;
+
+      switch (direction) {
+        case "ArrowUp":
+          newPos.y = Math.max(0, prev.y - speed);
+          break;
+        case "ArrowDown":
+          newPos.y = Math.min(maxHeight, prev.y + speed);
+          break;
+        case "ArrowLeft":
+          newPos.x = Math.max(0, prev.x - speed);
+          break;
+        case "ArrowRight":
+          newPos.x = Math.min(maxWidth, prev.x + speed);
+          break;
+      }
+      return newPos;
+    });
+  };
 
   React.useEffect(() => {
     checkCollision();
@@ -146,6 +175,12 @@ const GameBoard = () => {
           </div>
         )}
       </div>
+      
+      {isMobile && gameStarted && !gameOver && !isWinner && (
+        <div className="mt-8">
+          <MobileControls onMove={handleMobileMove} />
+        </div>
+      )}
       
       <div className="mt-8 w-full max-w-md">
         <Leaderboard scores={scores} />
