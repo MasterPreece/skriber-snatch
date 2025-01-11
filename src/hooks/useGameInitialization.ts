@@ -3,6 +3,11 @@ import type { Position, LetterState, BadDotState } from '../types/game';
 
 const PLAYER_EMOJIS = ["🍆", "🥑", "🍎", "🍊", "🍇", "🍓", "🍌", "🥝", "🍍", "🥭"];
 
+const getRandomPosition = (min: number = 50, max: number = 250): Position => ({
+  x: Math.floor(Math.random() * (max - min) + min),
+  y: Math.floor(Math.random() * (max - min) + min),
+});
+
 export const useGameInitialization = (
   setLetters: (letters: LetterState[]) => void,
   setBadDots: (dots: BadDotState[]) => void,
@@ -14,28 +19,25 @@ export const useGameInitialization = (
   setGameStarted: (started: boolean) => void,
 ) => {
   const initializeGame = useCallback(() => {
+    // Initialize letters for the first level
     const chars = ["S", "K", "R", "I", "B", "E", "R"];
     const newLetters = chars.map((char) => ({
       char,
-      position: {
-        x: Math.floor(Math.random() * 300),
-        y: Math.floor(Math.random() * 300),
-      },
+      position: getRandomPosition(),
       collected: false,
     }));
 
-    const baseSpeed = 1;
+    // Initialize one bad dot for the first level
     const newBadDots: BadDotState[] = [{
-      position: {
-        x: Math.floor(Math.random() * 300),
-        y: Math.floor(Math.random() * 300),
-      },
-      speed: baseSpeed,
+      position: getRandomPosition(),
+      speed: 1, // Initial speed for level 1
     }];
 
+    // Set random player emoji
     const randomEmoji = PLAYER_EMOJIS[Math.floor(Math.random() * PLAYER_EMOJIS.length)];
     (window as any).currentPlayerEmoji = randomEmoji;
 
+    // Initialize game state
     setLetters(newLetters);
     setBadDots(newBadDots);
     setPlayerPos({ x: 30, y: 30 });
@@ -44,6 +46,8 @@ export const useGameInitialization = (
     setIsWinner(false);
     setGameOver(false);
     setGameStarted(true);
+
+    console.log("Game initialized with", newLetters.length, "letters and", newBadDots.length, "bad dots");
   }, [setLetters, setBadDots, setPlayerPos, setLevel, setScore, setIsWinner, setGameOver, setGameStarted]);
 
   return { initializeGame };

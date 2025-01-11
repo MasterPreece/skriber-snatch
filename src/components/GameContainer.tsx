@@ -33,8 +33,7 @@ const GameContainer = () => {
     console.log("Starting new game...");
     resetGame();
     initializeGame();
-    setGameStarted(true);
-  }, [resetGame, initializeGame, setGameStarted]);
+  }, [resetGame, initializeGame]);
 
   // Reset game when component mounts
   React.useEffect(() => {
