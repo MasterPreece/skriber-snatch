@@ -120,6 +120,13 @@ const GameBoard = () => {
     resetGame();
   }, []);
 
+  // Show entry form when game is won
+  React.useEffect(() => {
+    if (gameOver && !isWinner) {
+      setShowEntryForm(true);
+    }
+  }, [gameOver, isWinner]);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-8 bg-[url('/lovable-uploads/6a584446-6e3e-4052-acb6-34952ba1d772.png')] bg-cover bg-center bg-no-repeat">
       <TopScores scores={scores} />
@@ -138,19 +145,12 @@ const GameBoard = () => {
           />
         )}
         
-        {isWinner && (
+        {(isWinner || gameOver) && (
           <WinnerScreen 
             score={level}
             showEntryForm={showEntryForm}
             onSave={handleSaveScore}
             onRestart={initializeGame}
-          />
-        )}
-        
-        {gameOver && !isWinner && (
-          <GameOverScreen 
-            onRestart={initializeGame}
-            level={level}
           />
         )}
       </div>
