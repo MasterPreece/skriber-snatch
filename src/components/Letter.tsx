@@ -6,12 +6,9 @@ interface LetterProps {
     y: number;
   };
   char: string;
-  collected: boolean;
 }
 
-const Letter = ({ position, char, collected }: LetterProps) => {
-  if (collected) return null;
-  
+const Letter = ({ position, char }: LetterProps) => {
   return (
     <div
       className="absolute text-3xl font-bold text-white drop-shadow-md"

@@ -1,42 +1,39 @@
-import React from "react";
-import Letter from "./Letter";
-import Player from "./Player";
-import BadDot from "./BadDot";
-import type { LetterState, BadDotState } from "../types/game";
+import React from 'react';
+import Player from './Player';
+import Letter from './Letter';
+import BadDot from './BadDot';
+import type { Position, LetterState, BadDotState } from '../types/game';
 
 interface ActiveGameProps {
   letters: LetterState[];
-  playerPos: {
-    x: number;
-    y: number;
-  };
+  playerPos: Position;
   badDots: BadDotState[];
   level: number;
 }
 
 const ActiveGame = ({ letters, playerPos, badDots, level }: ActiveGameProps) => {
   return (
-    <div className="relative w-full h-full">
+    <>
+      <div className="absolute top-4 left-4 text-2xl font-bold text-white drop-shadow-md">
+        {letters.filter((l) => l.collected).length}/{letters.length}
+      </div>
+      <div className="absolute top-4 right-4 text-2xl font-bold text-white drop-shadow-md">
+        Level {level}
+      </div>
+      <Player position={playerPos} emoji={(window as any).currentPlayerEmoji} />
       {letters.map((letter, index) => (
-        <Letter
-          key={index}
-          char={letter.char}
-          position={letter.position}
-          collected={letter.collected}
-        />
+        !letter.collected && (
+          <Letter
+            key={index}
+            position={letter.position}
+            char={letter.char}
+          />
+        )
       ))}
-      
       {badDots.map((dot, index) => (
-        <BadDot
-          key={index}
-          position={dot.position}
-          speed={dot.speed}
-          playerPos={playerPos}
-        />
+        <BadDot key={index} position={dot.position} speed={dot.speed} />
       ))}
-      
-      <Player position={playerPos} emoji="🐱" />
-    </div>
+    </>
   );
 };
 
