@@ -2,6 +2,8 @@ import { useState, useCallback } from 'react';
 import type { Position, LetterState, BadDotState, Score } from '../types/game';
 import { useToast } from '@/components/ui/use-toast';
 
+const STORAGE_KEY = 'skriber-snatch-scores';
+
 export const useGameState = () => {
   const [playerPos, setPlayerPos] = useState<Position>({ x: 30, y: 30 });
   const [letters, setLetters] = useState<LetterState[]>([]);
@@ -11,9 +13,14 @@ export const useGameState = () => {
   const [gameOver, setGameOver] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
   const [badDots, setBadDots] = useState<BadDotState[]>([]);
-  const [scores, setScores] = useState<Score[]>([]);
   const [showEntryForm, setShowEntryForm] = useState(false);
   const { toast } = useToast();
+
+  // Load scores from localStorage on initial render
+  const [scores, setScores] = useState<Score[]>(() => {
+    const savedScores = localStorage.getItem(STORAGE_KEY);
+    return savedScores ? JSON.parse(savedScores) : [];
+  });
 
   const calculateScore = useCallback(() => {
     const baseScore = Math.floor((timeLeft / 30) * 1000000);
@@ -33,6 +40,9 @@ export const useGameState = () => {
     
     setScores(newScores);
     setShowEntryForm(false);
+    
+    // Save to localStorage
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(newScores));
     
     toast({
       title: "Score Saved!",

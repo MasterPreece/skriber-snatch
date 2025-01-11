@@ -33,7 +33,8 @@ const GameBoard = () => {
     showEntryForm,
     handleSaveScore,
     calculateScore,
-    scores
+    scores,
+    setShowEntryForm
   } = useGameState();
 
   const { initializeGame } = useGameInitialization(
@@ -64,7 +65,6 @@ const GameBoard = () => {
     calculateScore
   );
 
-  // Add keyboard movement
   usePlayerMovement(
     gameStarted,
     gameOver,
@@ -105,9 +105,16 @@ const GameBoard = () => {
     checkCollision();
   }, [playerPos, checkCollision]);
 
+  const handleGameWin = () => {
+    const finalScore = calculateScore();
+    setScore(finalScore);
+    setIsWinner(true);
+    setShowEntryForm(true);
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-8">
-      <TopScores scores={scores} />
+      {scores.length > 0 && <TopScores scores={scores} />}
       <div className="relative w-[400px] h-[400px] bg-gradient-to-b from-[#e6e9f0] to-[#eef1f5] overflow-hidden border border-gray-200 rounded-lg shadow-lg">
         {!gameStarted && !gameOver && (
           <WelcomeScreen onStart={initializeGame} />
