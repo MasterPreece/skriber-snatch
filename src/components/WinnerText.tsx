@@ -6,12 +6,15 @@ interface WinnerTextProps {
 
 const WinnerText = ({ level }: WinnerTextProps) => {
   const getMessage = () => {
-    if (level <= 1) return "BARELY A WIN";
-    if (level <= 3) return "GETTING BETTER";
-    if (level <= 5) return "NOW WE'RE TALKING";
-    if (level <= 7) return "IMPRESSIVE MOVES";
-    if (level <= 9) return "ABSOLUTELY AMAZING";
-    return "LEGENDARY PLAYER";
+    if (level <= 1) return "WOW YOU'RE TERRIBLE AT THIS";
+    if (level <= 3) return "STILL PRETTY BAD TBH";
+    if (level <= 5) return "MEH, I GUESS THAT'S SOMETHING";
+    if (level <= 7) return "OK NOT BAD ACTUALLY";
+    if (level <= 9) return "HEY YOU'RE GETTING GOOD!";
+    if (level <= 11) return "IMPRESSIVE MOVES!";
+    if (level <= 13) return "AMAZING PERFORMANCE!";
+    if (level <= 15) return "ABSOLUTELY INCREDIBLE!";
+    return "YOU'RE A LEGENDARY PLAYER!";
   };
 
   const getAnimationClasses = () => {
@@ -24,12 +27,12 @@ const WinnerText = ({ level }: WinnerTextProps) => {
   };
 
   const getTextColor = () => {
-    if (level <= 1) return "text-gray-400";
-    if (level <= 3) return "text-winner1";
-    if (level <= 5) return "text-winner2";
-    if (level <= 7) return "text-winner3";
-    if (level <= 9) return "text-winner4";
-    return "text-winner5";
+    if (level <= 1) return "text-red-500";
+    if (level <= 3) return "text-orange-500";
+    if (level <= 5) return "text-yellow-500";
+    if (level <= 7) return "text-green-500";
+    if (level <= 9) return "text-blue-500";
+    return "text-purple-500";
   };
 
   const message = getMessage();
