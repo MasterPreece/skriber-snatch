@@ -95,10 +95,10 @@ export const useGameLogic = (
     const checkBadDotCollision = () => {
       const collision = badDots.some((dot) => {
         const distance = Math.sqrt(
-          Math.pow(playerPos.x - dot.position.x, 2) +
-          Math.pow(playerPos.y - dot.position.y, 2)
+          Math.pow(playerPos.x - dot.position.x - 32, 2) + // Center the collision point on the dinosaur
+          Math.pow(playerPos.y - dot.position.y - 32, 2)
         );
-        return distance < 20;
+        return distance < 12; // Reduced collision radius to match dinosaur emoji size
       });
 
       if (collision) {
