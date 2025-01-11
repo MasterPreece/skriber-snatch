@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import Player from "./Player";
 import Letter from "./Letter";
@@ -6,258 +6,68 @@ import WinnerText from "./WinnerText";
 import BadDot from "./BadDot";
 import Leaderboard from "./Leaderboard";
 import LeaderboardEntry from "./LeaderboardEntry";
-import { useToast } from "@/components/ui/use-toast";
-
-interface Position {
-  x: number;
-  y: number;
-}
-
-interface LetterState {
-  char: string;
-  position: Position;
-  collected: boolean;
-}
-
-interface BadDotState {
-  position: Position;
-}
-
-interface Score {
-  alias: string;
-  score: number;
-  date: string;
-}
+import { useGameState } from "../hooks/useGameState";
+import { useGameInitialization } from "../hooks/useGameInitialization";
+import { useGameLogic } from "../hooks/useGameLogic";
+import { usePlayerMovement } from "../hooks/usePlayerMovement";
 
 const GameBoard = () => {
-  const [playerPos, setPlayerPos] = useState<Position>({ x: 30, y: 30 });
-  const [letters, setLetters] = useState<LetterState[]>([]);
-  const [isWinner, setIsWinner] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(30);
-  const [score, setScore] = useState(0);
-  const [gameOver, setGameOver] = useState(false);
-  const [gameStarted, setGameStarted] = useState(false);
-  const [badDots, setBadDots] = useState<BadDotState[]>([]);
-  const [scores, setScores] = useState<Score[]>([]);
-  const [showEntryForm, setShowEntryForm] = useState(false);
-  const { toast } = useToast();
-  const speed = 15;
-  const badDotSpeed = 1;
+  const {
+    playerPos,
+    setPlayerPos,
+    letters,
+    setLetters,
+    isWinner,
+    setIsWinner,
+    timeLeft,
+    setTimeLeft,
+    score,
+    setScore,
+    gameOver,
+    setGameOver,
+    gameStarted,
+    setGameStarted,
+    badDots,
+    setBadDots,
+    scores,
+    showEntryForm,
+    handleSaveScore,
+    calculateScore
+  } = useGameState();
 
-  const initializeGame = useCallback(() => {
-    const chars = ["S", "K", "R", "I", "B", "E", "R"];
-    const newLetters = chars.map((char) => ({
-      char,
-      position: {
-        x: Math.floor(Math.random() * 300),
-        y: Math.floor(Math.random() * 300),
-      },
-      collected: false,
-    }));
+  const { initializeGame } = useGameInitialization(
+    setLetters,
+    setBadDots,
+    setPlayerPos,
+    setTimeLeft,
+    setScore,
+    setIsWinner,
+    setGameOver,
+    setGameStarted
+  );
 
-    // Define quadrants (excluding top-left which is for player)
-    const quadrants = [
-      { minX: 150, maxX: 300, minY: 0, maxY: 150 },    // top-right
-      { minX: 0, maxX: 150, minY: 150, maxY: 300 },    // bottom-left
-      { minX: 150, maxX: 300, minY: 150, maxY: 300 },  // bottom-right
-    ];
+  const { checkCollision } = useGameLogic(
+    gameStarted,
+    gameOver,
+    isWinner,
+    playerPos,
+    letters,
+    badDots,
+    timeLeft,
+    setLetters,
+    setBadDots,
+    setIsWinner,
+    setGameOver,
+    setTimeLeft,
+    setScore,
+    calculateScore
+  );
 
-    const newBadDots: BadDotState[] = [];
-    const minDistance = 50;
+  usePlayerMovement(gameStarted, gameOver, isWinner, setPlayerPos);
 
-    // Place one bad dot in each remaining quadrant
-    quadrants.forEach(quadrant => {
-      let placed = false;
-      while (!placed) {
-        const newPosition = {
-          x: Math.floor(Math.random() * (quadrant.maxX - quadrant.minX)) + quadrant.minX,
-          y: Math.floor(Math.random() * (quadrant.maxY - quadrant.minY)) + quadrant.minY,
-        };
-
-        const isTooClose = newBadDots.some(dot => {
-          const dx = dot.position.x - newPosition.x;
-          const dy = dot.position.y - newPosition.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          return distance < minDistance;
-        });
-
-        if (!isTooClose) {
-          newBadDots.push({ position: newPosition });
-          placed = true;
-        }
-      }
-    });
-
-    setLetters(newLetters);
-    setBadDots(newBadDots);
-    setPlayerPos({ x: 30, y: 30 });
-    setTimeLeft(30);
-    setScore(0);
-    setIsWinner(false);
-    setGameOver(false);
-    setGameStarted(true);
-  }, []);
-
-  // Timer logic
-  useEffect(() => {
-    if (timeLeft > 0 && !isWinner && gameStarted && !gameOver) {
-      const timer = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
-      }, 1000);
-
-      return () => clearInterval(timer);
-    } else if (timeLeft === 0 && !isWinner && gameStarted) {
-      setGameOver(true);
-    }
-  }, [timeLeft, isWinner, gameStarted]);
-
-  // Bad dots movement logic
-  useEffect(() => {
-    if (!gameStarted || gameOver || isWinner) return;
-
-    const moveInterval = setInterval(() => {
-      setBadDots((prevDots) =>
-        prevDots.map((dot) => {
-          const dx = playerPos.x - dot.position.x;
-          const dy = playerPos.y - dot.position.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          
-          if (distance < 1) return dot;
-
-          const newX = dot.position.x + (dx / distance) * badDotSpeed;
-          const newY = dot.position.y + (dy / distance) * badDotSpeed;
-
-          return {
-            position: {
-              x: Math.max(0, Math.min(300, newX)),
-              y: Math.max(0, Math.min(300, newY)),
-            },
-          };
-        })
-      );
-    }, 50);
-
-    return () => clearInterval(moveInterval);
-  }, [playerPos, gameStarted, gameOver, isWinner]);
-
-  // Check for collision with bad dots
-  useEffect(() => {
-    if (!gameStarted || gameOver || isWinner) return;
-
-    const checkBadDotCollision = () => {
-      const collision = badDots.some((dot) => {
-        const distance = Math.sqrt(
-          Math.pow(playerPos.x - dot.position.x, 2) +
-          Math.pow(playerPos.y - dot.position.y, 2)
-        );
-        return distance < 20;
-      });
-
-      if (collision) {
-        setGameOver(true);
-      }
-    };
-
-    checkBadDotCollision();
-  }, [playerPos, badDots, gameStarted, gameOver, isWinner]);
-
-  const calculateScore = useCallback(() => {
-    const baseScore = Math.floor((timeLeft / 30) * 1000000);
-    return Math.max(0, baseScore);
-  }, [timeLeft]);
-
-  const checkCollision = useCallback(() => {
-    setLetters((prevLetters) => {
-      let allCollected = true;
-      const newLetters = prevLetters.map((letter) => {
-        if (!letter.collected) {
-          const distance = Math.sqrt(
-            Math.pow(playerPos.x - letter.position.x, 2) +
-              Math.pow(playerPos.y - letter.position.y, 2)
-          );
-          if (distance < 30) {
-            return {
-              ...letter,
-              collected: true,
-            };
-          }
-          allCollected = false;
-        }
-        return letter;
-      });
-
-      if (allCollected) {
-        setIsWinner(true);
-        setScore(calculateScore());
-      }
-
-      return newLetters;
-    });
-  }, [playerPos, calculateScore]);
-
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (!gameStarted || gameOver || isWinner) return;
-      
-      setPlayerPos((prev) => {
-        let newPos = { ...prev };
-        const maxWidth = 350;  // Increased from 300 to account for board size
-        const maxHeight = 350; // Increased from 300 to account for board size
-
-        switch (e.key) {
-          case "ArrowUp":
-            newPos.y = Math.max(0, prev.y - speed);
-            break;
-          case "ArrowDown":
-            newPos.y = Math.min(maxHeight, prev.y + speed);
-            break;
-          case "ArrowLeft":
-            newPos.x = Math.max(0, prev.x - speed);
-            break;
-          case "ArrowRight":
-            newPos.x = Math.min(maxWidth, prev.x + speed);
-            break;
-        }
-        return newPos;
-      });
-    };
-
-    window.addEventListener("keydown", handleKeyPress);
-    return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [gameStarted, gameOver, isWinner, speed]);
-
-  useEffect(() => {
+  React.useEffect(() => {
     checkCollision();
   }, [playerPos, checkCollision]);
-
-  const handleSaveScore = (alias: string) => {
-    const newScore = {
-      alias,
-      score,
-      date: new Date().toISOString(),
-    };
-    
-    const newScores = [...scores, newScore]
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 10);
-    
-    setScores(newScores);
-    setShowEntryForm(false);
-    
-    toast({
-      title: "Score Saved!",
-      description: `${alias} - ${score.toLocaleString()} points`,
-    });
-  };
-
-  useEffect(() => {
-    if (isWinner && !showEntryForm) {
-      const lowestScore = scores[9]?.score || 0;
-      if (scores.length < 10 || score > lowestScore) {
-        setShowEntryForm(true);
-      }
-    }
-  }, [isWinner, score, scores, showEntryForm]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
