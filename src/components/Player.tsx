@@ -10,11 +10,13 @@ interface PlayerProps {
 const Player = ({ position }: PlayerProps) => {
   return (
     <div
-      className="absolute w-6 h-6 bg-blue-700 rounded-full transition-all duration-75 ease-linear shadow-lg"
+      className="absolute w-6 h-6 flex items-center justify-center transition-all duration-75 ease-linear"
       style={{
         transform: `translate(${position.x}px, ${position.y}px)`,
       }}
-    />
+    >
+      🍆
+    </div>
   );
 };
 
