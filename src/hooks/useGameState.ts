@@ -3,6 +3,7 @@ import type { Position, LetterState, BadDotState, Score } from '../types/game';
 import { useToast } from '@/components/ui/use-toast';
 
 const STORAGE_KEY = 'skriber-snatch-scores';
+const MIN_SPAWN_DISTANCE = 100; // Minimum distance from player for bad dot spawns
 
 export const useGameState = () => {
   const [playerPos, setPlayerPos] = useState<Position>({ x: 30, y: 30 });
@@ -21,33 +22,48 @@ export const useGameState = () => {
     return savedScores ? JSON.parse(savedScores) : [];
   });
 
+  const getRandomPositionAwayFromPlayer = (playerPos: Position): Position => {
+    let position: Position;
+    do {
+      position = {
+        x: Math.floor(Math.random() * 300),
+        y: Math.floor(Math.random() * 300),
+      };
+      // Calculate distance from player
+      const distance = Math.sqrt(
+        Math.pow(position.x - playerPos.x, 2) + 
+        Math.pow(position.y - playerPos.y, 2)
+      );
+      // If distance is greater than minimum, accept the position
+      if (distance >= MIN_SPAWN_DISTANCE) {
+        break;
+      }
+    } while (true);
+    
+    return position;
+  };
+
   useEffect(() => {
     if (gameStarted && !gameOver && !isWinner && letters.every(l => l.collected)) {
       // Level completed, initialize next level
       const chars = ["S", "K", "R", "I", "B", "E", "R"];
       const newLetters = chars.map((char) => ({
         char,
-        position: {
-          x: Math.floor(Math.random() * 300),
-          y: Math.floor(Math.random() * 300),
-        },
+        position: getRandomPositionAwayFromPlayer(playerPos),
         collected: false,
       }));
 
       const baseSpeed = 1 + (level * 0.5); // Increase speed with each level
       const newBadDots: BadDotState[] = Array(level).fill(null).map(() => ({
-        position: {
-          x: Math.floor(Math.random() * 300),
-          y: Math.floor(Math.random() * 300),
-        },
+        position: getRandomPositionAwayFromPlayer(playerPos),
         speed: baseSpeed,
       }));
 
       setLetters(newLetters);
       setBadDots(newBadDots);
-      setLevel(prev => prev + 1);
+      setLevel(prev => prev + 1); // Increment by 1 instead of 2
     }
-  }, [letters, level, gameStarted, gameOver, isWinner]);
+  }, [letters, level, gameStarted, gameOver, isWinner, playerPos]);
 
   const handleSaveScore = useCallback((alias: string) => {
     const newScore: Score = {
