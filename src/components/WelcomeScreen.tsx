@@ -6,6 +6,11 @@ interface WelcomeScreenProps {
 }
 
 const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
+  const handleStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    onStart();
+  };
+
   return (
     <div className="absolute inset-0 flex flex-col items-center p-8 bg-white">
       <div className="mt-4">
@@ -15,13 +20,13 @@ const WelcomeScreen = ({ onStart }: WelcomeScreenProps) => {
       </div>
       <div className="flex flex-col gap-4 mt-8">
         <Button 
-          onClick={onStart}
+          onClick={handleStart}
           className="text-lg px-6 py-4"
         >
           Play
         </Button>
         <Button 
-          onClick={onStart}
+          onClick={handleStart}
           variant="outline"
           className="text-lg px-6 py-4"
         >

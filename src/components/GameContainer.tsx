@@ -29,15 +29,16 @@ const GameContainer = () => {
     setGameStarted
   );
 
+  const handleStart = React.useCallback(() => {
+    resetGame();
+    initializeGame();
+    setGameStarted(true);
+  }, [resetGame, initializeGame, setGameStarted]);
+
   // Reset game when component mounts
   React.useEffect(() => {
     resetGame();
   }, [resetGame]);
-
-  const handleStart = () => {
-    resetGame();
-    initializeGame();
-  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-8 bg-[url('/lovable-uploads/6a584446-6e3e-4052-acb6-34952ba1d772.png')] bg-cover bg-center bg-no-repeat">
