@@ -1,17 +1,14 @@
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
-import { Button } from "@/components/ui/button";
-import Player from "./Player";
-import Letter from "./Letter";
-import WinnerText from "./WinnerText";
-import BadDot from "./BadDot";
-import LeaderboardEntry from "./LeaderboardEntry";
-import MobileControls from "./MobileControls";
+import WelcomeScreen from "./WelcomeScreen";
+import GameOverScreen from "./GameOverScreen";
+import WinnerScreen from "./WinnerScreen";
+import ActiveGame from "./ActiveGame";
 import TopScores from "./TopScores";
+import MobileControls from "./MobileControls";
 import { useGameState } from "../hooks/useGameState";
 import { useGameInitialization } from "../hooks/useGameInitialization";
 import { useGameLogic } from "../hooks/useGameLogic";
-import { usePlayerMovement } from "../hooks/usePlayerMovement";
 import { useIsMobile } from "../hooks/use-mobile";
 
 const GameBoard = () => {
@@ -104,76 +101,29 @@ const GameBoard = () => {
       <TopScores scores={scores} />
       <div className="relative w-[400px] h-[400px] bg-gradient-to-b from-[#e6e9f0] to-[#eef1f5] overflow-hidden border border-gray-200 rounded-lg shadow-lg">
         {!gameStarted && !gameOver && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-8 p-8 bg-white">
-            <h1 className="text-4xl font-bold text-purple-600 text-center">
-              Welcome to Skriber Snatch
-            </h1>
-            <Button 
-              onClick={initializeGame}
-              className="text-xl px-8 py-6"
-            >
-              Start Game
-            </Button>
-          </div>
+          <WelcomeScreen onStart={initializeGame} />
         )}
         
         {gameStarted && !gameOver && !isWinner && (
-          <>
-            <div className="absolute top-4 left-4 text-2xl font-bold text-gray-700">
-              {letters.filter((l) => l.collected).length}/{letters.length}
-            </div>
-            <div className="absolute top-4 right-4 text-2xl font-bold text-gray-700">
-              {timeLeft}s
-            </div>
-            <Player position={playerPos} />
-            {letters.map((letter, index) => (
-              !letter.collected && (
-                <Letter
-                  key={index}
-                  position={letter.position}
-                  char={letter.char}
-                />
-              )
-            ))}
-            {badDots.map((dot, index) => (
-              <BadDot key={index} position={dot.position} />
-            ))}
-          </>
+          <ActiveGame 
+            letters={letters}
+            playerPos={playerPos}
+            badDots={badDots}
+            timeLeft={timeLeft}
+          />
         )}
         
         {isWinner && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <WinnerText />
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-4">
-              <div className="text-2xl font-bold text-purple-600 animate-bounce">
-                Score: {score.toLocaleString()}
-              </div>
-              {showEntryForm ? (
-                <LeaderboardEntry score={score} onSave={handleSaveScore} />
-              ) : (
-                <Button 
-                  onClick={initializeGame}
-                  className="text-lg px-6 py-4"
-                >
-                  Play Again
-                </Button>
-              )}
-            </div>
-          </div>
+          <WinnerScreen 
+            score={score}
+            showEntryForm={showEntryForm}
+            onSave={handleSaveScore}
+            onRestart={initializeGame}
+          />
         )}
         
         {gameOver && !isWinner && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
-            <div className="text-3xl font-bold text-red-500 text-center px-4">
-              You aren't a Skriber winner, try again
-            </div>
-            <Button 
-              onClick={initializeGame}
-              className="text-lg px-6 py-4"
-            >
-              Try Again
-            </Button>
-          </div>
+          <GameOverScreen onRestart={initializeGame} />
         )}
       </div>
       
