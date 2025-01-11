@@ -41,10 +41,9 @@ const BadDot = ({ position, speed, playerPos }: BadDotProps) => {
 
   return (
     <div
-      className="absolute flex items-center justify-center w-16 h-16 rounded-full transition-all ease-linear text-4xl"
+      className="absolute w-8 h-8 flex items-center justify-center transition-all duration-75 ease-linear z-10"
       style={{
         transform: `translate(${currentPos.x}px, ${currentPos.y}px)`,
-        transitionDuration: `${75 / speed}ms`,
       }}
     >
       🦖
