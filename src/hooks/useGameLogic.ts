@@ -46,12 +46,12 @@ export const useGameLogic = (
     });
   }, [playerPos, calculateScore, setLetters, setIsWinner, setScore]);
 
-  // Timer logic
+  // Timer logic - Updated to use 100ms intervals instead of 1000ms
   useEffect(() => {
     if (timeLeft > 0 && !isWinner && gameStarted && !gameOver) {
       const timer = setInterval(() => {
-        setTimeLeft((prev: number) => prev - 1);
-      }, 1000);
+        setTimeLeft((prev: number) => Math.max(0, prev - 0.1));
+      }, 100);
 
       return () => clearInterval(timer);
     } else if (timeLeft === 0 && !isWinner && gameStarted) {
@@ -95,10 +95,10 @@ export const useGameLogic = (
     const checkBadDotCollision = () => {
       const collision = badDots.some((dot) => {
         const distance = Math.sqrt(
-          Math.pow(playerPos.x - dot.position.x - 32, 2) + // Center the collision point on the dinosaur
+          Math.pow(playerPos.x - dot.position.x - 32, 2) +
           Math.pow(playerPos.y - dot.position.y - 32, 2)
         );
-        return distance < 12; // Reduced collision radius to match dinosaur emoji size
+        return distance < 12;
       });
 
       if (collision) {
