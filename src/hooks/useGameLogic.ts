@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import type { Position, LetterState, BadDotState } from '../types/game';
 
 export const useGameLogic = (
@@ -16,6 +16,8 @@ export const useGameLogic = (
   setLevel: (level: number) => void,
   setScore: (score: number) => void,
 ) => {
+  const [canMove, setCanMove] = useState(true);
+
   const getRandomPosition = (): Position => ({
     x: Math.floor(Math.random() * 300),
     y: Math.floor(Math.random() * 300),
@@ -39,6 +41,12 @@ export const useGameLogic = (
 
     setLetters(newLetters);
     setBadDots(newBadDots);
+    
+    // Pause bad dot movement for 0.5 seconds when level starts
+    setCanMove(false);
+    setTimeout(() => {
+      setCanMove(true);
+    }, 500);
   }, [level, setLetters, setBadDots]);
 
   const checkCollision = useCallback(() => {
@@ -84,7 +92,7 @@ export const useGameLogic = (
 
   // Bad dots movement logic
   useEffect(() => {
-    if (!gameStarted || gameOver || isWinner) return;
+    if (!gameStarted || gameOver || isWinner || !canMove) return;
 
     const moveInterval = setInterval(() => {
       const newBadDots = badDots.map((dot) => {
@@ -111,7 +119,7 @@ export const useGameLogic = (
     }, 50);
 
     return () => clearInterval(moveInterval);
-  }, [playerPos, gameStarted, gameOver, isWinner, badDots, setBadDots]);
+  }, [playerPos, gameStarted, gameOver, isWinner, badDots, setBadDots, canMove]);
 
   // Check for collision with bad dots
   useEffect(() => {
