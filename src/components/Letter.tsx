@@ -11,7 +11,7 @@ interface LetterProps {
 const Letter = ({ position, char }: LetterProps) => {
   return (
     <div
-      className="absolute text-3xl font-bold text-letter"
+      className="absolute text-3xl font-bold text-white drop-shadow-md"
       style={{
         transform: `translate(${position.x}px, ${position.y}px)`,
       }}

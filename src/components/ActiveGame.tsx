@@ -16,10 +16,10 @@ const ActiveGame = ({ letters, playerPos, badDots, timeLeft }: ActiveGameProps) 
 
   return (
     <>
-      <div className="absolute top-4 left-4 text-2xl font-bold text-gray-700">
+      <div className="absolute top-4 left-4 text-2xl font-bold text-white drop-shadow-md">
         {letters.filter((l) => l.collected).length}/{letters.length}
       </div>
-      <div className="absolute top-4 right-4 text-2xl font-bold text-purple-600">
+      <div className="absolute top-4 right-4 text-2xl font-bold text-white drop-shadow-md">
         {currentScore.toLocaleString()}
       </div>
       <Player position={playerPos} />
