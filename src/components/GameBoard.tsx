@@ -4,7 +4,6 @@ import WelcomeScreen from "./WelcomeScreen";
 import GameOverScreen from "./GameOverScreen";
 import WinnerScreen from "./WinnerScreen";
 import ActiveGame from "./ActiveGame";
-import TopScores from "./TopScores";
 import MobileControls from "./MobileControls";
 import { useGameState } from "../hooks/useGameState";
 import { useGameInitialization } from "../hooks/useGameInitialization";
@@ -33,7 +32,6 @@ const GameBoard = () => {
     showEntryForm,
     handleSaveScore,
     calculateScore,
-    scores,
     setShowEntryForm
   } = useGameState();
 
@@ -114,11 +112,6 @@ const GameBoard = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-8 bg-[url('/lovable-uploads/6a584446-6e3e-4052-acb6-34952ba1d772.png')] bg-cover bg-center bg-no-repeat">
-      {scores && scores.length > 0 && (
-        <div className="w-full max-w-[400px] mb-4">
-          <TopScores scores={scores} />
-        </div>
-      )}
       <div className="relative w-[400px] h-[400px] bg-gradient-to-b from-[rgba(51,195,240,0.95)] to-[rgba(14,165,233,0.95)] overflow-hidden border border-sky-300 rounded-lg shadow-lg backdrop-blur-sm">
         {!gameStarted && !gameOver && (
           <WelcomeScreen onStart={initializeGame} />
