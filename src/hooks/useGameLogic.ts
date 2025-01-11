@@ -19,33 +19,31 @@ export const useGameLogic = (
   const checkCollision = useCallback(() => {
     if (!gameStarted || gameOver || isWinner) return;
 
-    let allCollected = true;
-    let letterCollected = false;
+    // Count collected letters before updating
+    const collectedCount = letters.filter(l => l.collected).length;
+    let letterCollectedThisCheck = false;
 
     setLetters((prevLetters: LetterState[]) => {
-      const newLetters = prevLetters.map((letter) => {
+      return prevLetters.map((letter) => {
         if (!letter.collected) {
           const distance = Math.sqrt(
             Math.pow(playerPos.x - letter.position.x, 2) +
             Math.pow(playerPos.y - letter.position.y, 2)
           );
           if (distance < 30) {
-            letterCollected = true;
+            letterCollectedThisCheck = true;
             return {
               ...letter,
               collected: true,
             };
           }
-          allCollected = false;
         }
         return letter;
       });
-
-      return newLetters;
     });
 
-    // Only proceed with level increment if we actually collected all letters
-    if (allCollected && letterCollected) {
+    // Check if this collection completed the level
+    if (letterCollectedThisCheck && collectedCount === letters.length - 1) {
       const nextLevel = level + 1;
       setLevel(nextLevel);
       setScore(nextLevel);
@@ -74,7 +72,7 @@ export const useGameLogic = (
         }
       ]);
     }
-  }, [playerPos, level, setLetters, setLevel, setScore, gameStarted, gameOver, isWinner, setBadDots]);
+  }, [playerPos, level, setLetters, setLevel, setScore, gameStarted, gameOver, isWinner, setBadDots, letters]);
 
   // Bad dots movement logic
   useEffect(() => {
