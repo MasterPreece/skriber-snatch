@@ -15,7 +15,7 @@ const Player = ({ position }: PlayerProps) => {
         transform: `translate(${position.x}px, ${position.y}px)`,
       }}
     >
-      🍆
+      <span className="text-[1.4em]">🍆</span>
     </div>
   );
 };
