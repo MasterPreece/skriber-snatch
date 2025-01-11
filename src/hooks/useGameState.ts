@@ -53,8 +53,7 @@ export const useGameState = () => {
       }));
 
       const baseSpeed = 1 + (nextLevel * 0.5);
-      // Limit the number of bad dots to prevent overwhelming the player
-      const maxBadDots = Math.min(nextLevel, 10); // Cap at 10 bad dots maximum
+      const maxBadDots = Math.min(nextLevel, 10);
       
       const newBadDots: BadDotState[] = Array(maxBadDots).fill(null).map(() => ({
         position: getRandomPositionAwayFromPlayer(playerPos),
@@ -66,6 +65,13 @@ export const useGameState = () => {
       setLevel(nextLevel);
     }
   }, [letters, level, gameStarted, gameOver, isWinner, playerPos]);
+
+  // Reset level when game starts
+  useEffect(() => {
+    if (gameStarted) {
+      setLevel(1);
+    }
+  }, [gameStarted]);
 
   const handleSaveScore = useCallback((alias: string) => {
     const newScore: Score = {
