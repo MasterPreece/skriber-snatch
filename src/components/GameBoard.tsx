@@ -113,9 +113,9 @@ const GameBoard = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-8">
+    <div className="flex flex-col items-center justify-center min-h-screen py-8 bg-[url('/fireworks.jpg')] bg-cover bg-center bg-no-repeat">
       {scores.length > 0 && <TopScores scores={scores} />}
-      <div className="relative w-[400px] h-[400px] bg-gradient-to-b from-[#e6e9f0] to-[#eef1f5] overflow-hidden border border-gray-200 rounded-lg shadow-lg">
+      <div className="relative w-[400px] h-[400px] bg-gradient-to-b from-[rgba(230,233,240,0.85)] to-[rgba(238,241,245,0.85)] overflow-hidden border border-gray-200 rounded-lg shadow-lg backdrop-blur-sm">
         {!gameStarted && !gameOver && (
           <WelcomeScreen onStart={initializeGame} />
         )}
