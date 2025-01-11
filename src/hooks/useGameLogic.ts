@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import type { Position, LetterState, BadDotState } from '../types/game';
 
 export const useGameLogic = (
@@ -16,7 +16,8 @@ export const useGameLogic = (
   setLevel: (level: number) => void,
   setScore: (score: number) => void,
 ) => {
-  const [canMove, setCanMove] = useState(true);
+  // Use ref instead of state to avoid React queue issues
+  const canMoveRef = useRef(true);
 
   const getRandomPosition = (): Position => ({
     x: Math.floor(Math.random() * 300),
@@ -43,9 +44,9 @@ export const useGameLogic = (
     setBadDots(newBadDots);
     
     // Pause bad dot movement for 0.5 seconds when level starts
-    setCanMove(false);
+    canMoveRef.current = false;
     setTimeout(() => {
-      setCanMove(true);
+      canMoveRef.current = true;
     }, 500);
   }, [level, setLetters, setBadDots]);
 
@@ -92,7 +93,7 @@ export const useGameLogic = (
 
   // Bad dots movement logic
   useEffect(() => {
-    if (!gameStarted || gameOver || isWinner || !canMove) return;
+    if (!gameStarted || gameOver || isWinner || !canMoveRef.current) return;
 
     const moveInterval = setInterval(() => {
       const newBadDots = badDots.map((dot) => {
@@ -119,7 +120,7 @@ export const useGameLogic = (
     }, 50);
 
     return () => clearInterval(moveInterval);
-  }, [playerPos, gameStarted, gameOver, isWinner, badDots, setBadDots, canMove]);
+  }, [playerPos, gameStarted, gameOver, isWinner, badDots, setBadDots]);
 
   // Check for collision with bad dots
   useEffect(() => {
