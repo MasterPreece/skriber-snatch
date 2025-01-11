@@ -6,7 +6,7 @@ export const usePlayerMovement = (
   gameOver: boolean,
   isWinner: boolean,
   setPlayerPos: (value: Position | ((prev: Position) => Position)) => void,
-  speed: number = 22.5  // Increased from 15 to 22.5 (1.5x faster)
+  speed: number = 33.75  // Increased from 22.5 to 33.75 (another 1.5x faster)
 ) => {
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
