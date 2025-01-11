@@ -19,12 +19,18 @@ const GameBoard = ({ onStart }: GameBoardProps) => {
     playerPos,
     setPlayerPos,
     letters,
+    setLetters,
     badDots,
+    setBadDots,
     isWinner,
+    setIsWinner,
     level,
+    setLevel,
     gameOver,
+    setGameOver,
     gameStarted,
     showEntryForm,
+    setScore,
     handleSaveScore,
   } = useGameState();
 

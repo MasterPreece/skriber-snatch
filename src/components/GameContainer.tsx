@@ -7,6 +7,14 @@ import GameBoard from "./GameBoard";
 const GameContainer = () => {
   const {
     scores,
+    setLetters,
+    setBadDots,
+    setPlayerPos,
+    setLevel,
+    setScore,
+    setIsWinner,
+    setGameOver,
+    setGameStarted,
     resetGame,
   } = useGameState();
 

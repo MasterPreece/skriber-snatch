@@ -22,6 +22,18 @@ export const useGameState = () => {
     return savedScores ? JSON.parse(savedScores) : [];
   });
 
+  const resetGame = useCallback(() => {
+    setPlayerPos({ x: 30, y: 30 });
+    setLetters([]);
+    setIsWinner(false);
+    setLevel(1);
+    setScore(0);
+    setGameOver(false);
+    setGameStarted(false);
+    setBadDots([]);
+    setShowEntryForm(false);
+  }, []);
+
   const getRandomPositionAwayFromPlayer = (playerPos: Position): Position => {
     let position: Position;
     do {
@@ -65,13 +77,6 @@ export const useGameState = () => {
       setLevel(nextLevel);
     }
   }, [letters, level, gameStarted, gameOver, isWinner, playerPos]);
-
-  // Reset level when game starts
-  useEffect(() => {
-    if (gameStarted) {
-      setLevel(1);
-    }
-  }, [gameStarted]);
 
   const handleSaveScore = useCallback((alias: string) => {
     const newScore: Score = {
@@ -118,5 +123,6 @@ export const useGameState = () => {
     showEntryForm,
     setShowEntryForm,
     handleSaveScore,
+    resetGame,
   };
 };
