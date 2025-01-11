@@ -9,72 +9,70 @@ export const useGameLogic = (
   letters: LetterState[],
   badDots: BadDotState[],
   level: number,
-  setLetters: (value: LetterState[] | ((prev: LetterState[]) => LetterState[])) => void,
-  setBadDots: (value: BadDotState[] | ((prev: BadDotState[]) => BadDotState[])) => void,
+  setLetters: (value: LetterState[]) => void,
+  setBadDots: (value: BadDotState[]) => void,
   setIsWinner: (winner: boolean) => void,
   setGameOver: (over: boolean) => void,
-  setLevel: (value: number) => void,
+  setLevel: (level: number) => void,
   setScore: (score: number) => void,
 ) => {
   const checkCollision = useCallback(() => {
-    setLetters((prevLetters: LetterState[]) => {
-      let allCollected = true;
-      const newLetters = prevLetters.map((letter) => {
-        if (!letter.collected) {
-          const distance = Math.sqrt(
-            Math.pow(playerPos.x - letter.position.x, 2) +
-              Math.pow(playerPos.y - letter.position.y, 2)
-          );
-          if (distance < 30) {
-            return {
-              ...letter,
-              collected: true,
-            };
-          }
-          allCollected = false;
+    if (!gameStarted || gameOver || isWinner) return;
+
+    let allCollected = true;
+    const newLetters = letters.map((letter) => {
+      if (!letter.collected) {
+        const distance = Math.sqrt(
+          Math.pow(playerPos.x - letter.position.x, 2) +
+          Math.pow(playerPos.y - letter.position.y, 2)
+        );
+        if (distance < 30) {
+          return { ...letter, collected: true };
         }
-        return letter;
-      });
-
-      if (allCollected) {
-        setLevel(level + 1);
-        setScore(level);
+        allCollected = false;
       }
-
-      return newLetters;
+      return letter;
     });
-  }, [playerPos, level, setLetters, setLevel, setScore]);
+
+    setLetters(newLetters);
+
+    if (allCollected) {
+      const newLevel = level + 1;
+      setLevel(newLevel);
+      setScore(newLevel - 1);
+    }
+  }, [playerPos, level, letters, gameStarted, gameOver, isWinner, setLetters, setLevel, setScore]);
 
   // Bad dots movement logic
   useEffect(() => {
     if (!gameStarted || gameOver || isWinner) return;
 
     const moveInterval = setInterval(() => {
-      setBadDots((prevDots: BadDotState[]) =>
-        prevDots.map((dot) => {
-          const dx = playerPos.x - dot.position.x;
-          const dy = playerPos.y - dot.position.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          
-          if (distance < 1) return dot;
+      const newBadDots = badDots.map((dot) => {
+        const dx = playerPos.x - dot.position.x;
+        const dy = playerPos.y - dot.position.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance < 1) return dot;
 
-          const speed = dot.speed;
-          const newX = dot.position.x + (dx / distance) * speed;
-          const newY = dot.position.y + (dy / distance) * speed;
+        const speed = dot.speed;
+        const newX = dot.position.x + (dx / distance) * speed;
+        const newY = dot.position.y + (dy / distance) * speed;
 
-          return {
-            position: {
-              x: Math.max(0, Math.min(300, newX)),
-              y: Math.max(0, Math.min(300, newY)),
-            },
-            speed,
-          };
-        })
-      );
+        return {
+          position: {
+            x: Math.max(0, Math.min(300, newX)),
+            y: Math.max(0, Math.min(300, newY)),
+          },
+          speed,
+        };
+      });
+
+      setBadDots(newBadDots);
     }, 50);
 
     return () => clearInterval(moveInterval);
-  }, [playerPos, gameStarted, gameOver, isWinner, setBadDots]);
+  }, [playerPos, gameStarted, gameOver, isWinner, badDots, setBadDots]);
 
   // Check for collision with bad dots
   useEffect(() => {
