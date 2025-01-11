@@ -9,6 +9,7 @@ import MobileControls from "./MobileControls";
 import { useGameState } from "../hooks/useGameState";
 import { useGameInitialization } from "../hooks/useGameInitialization";
 import { useGameLogic } from "../hooks/useGameLogic";
+import { usePlayerMovement } from "../hooks/usePlayerMovement";
 import { useIsMobile } from "../hooks/use-mobile";
 
 const GameBoard = () => {
@@ -61,6 +62,14 @@ const GameBoard = () => {
     setTimeLeft,
     setScore,
     calculateScore
+  );
+
+  // Add keyboard movement
+  usePlayerMovement(
+    gameStarted,
+    gameOver,
+    isWinner,
+    setPlayerPos
   );
 
   const isMobile = useIsMobile();
