@@ -5,14 +5,16 @@ interface BadDotProps {
     x: number;
     y: number;
   };
+  speed: number;
 }
 
-const BadDot = ({ position }: BadDotProps) => {
+const BadDot = ({ position, speed }: BadDotProps) => {
   return (
     <div
-      className="absolute flex items-center justify-center w-16 h-16 rounded-full transition-all duration-75 ease-linear text-4xl"
+      className="absolute flex items-center justify-center w-16 h-16 rounded-full transition-all ease-linear text-4xl"
       style={{
         transform: `translate(${position.x}px, ${position.y}px)`,
+        transitionDuration: `${75 / speed}ms`,
       }}
     >
       🦖

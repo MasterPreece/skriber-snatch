@@ -20,8 +20,8 @@ const GameBoard = () => {
     setLetters,
     isWinner,
     setIsWinner,
-    timeLeft,
-    setTimeLeft,
+    level,
+    setLevel,
     score,
     setScore,
     gameOver,
@@ -32,7 +32,6 @@ const GameBoard = () => {
     setBadDots,
     showEntryForm,
     handleSaveScore,
-    calculateScore,
     setShowEntryForm,
     scores
   } = useGameState();
@@ -41,7 +40,7 @@ const GameBoard = () => {
     setLetters,
     setBadDots,
     setPlayerPos,
-    setTimeLeft,
+    setLevel,
     setScore,
     setIsWinner,
     setGameOver,
@@ -55,14 +54,13 @@ const GameBoard = () => {
     playerPos,
     letters,
     badDots,
-    timeLeft,
+    level,
     setLetters,
     setBadDots,
     setIsWinner,
     setGameOver,
-    setTimeLeft,
-    setScore,
-    calculateScore
+    setLevel,
+    setScore
   );
 
   usePlayerMovement(
@@ -106,8 +104,7 @@ const GameBoard = () => {
   }, [playerPos, checkCollision]);
 
   const handleGameWin = () => {
-    const finalScore = calculateScore();
-    setScore(finalScore);
+    setScore(level);
     setIsWinner(true);
     setShowEntryForm(true);
   };
@@ -126,13 +123,13 @@ const GameBoard = () => {
             letters={letters}
             playerPos={playerPos}
             badDots={badDots}
-            timeLeft={timeLeft}
+            level={level}
           />
         )}
         
         {isWinner && (
           <WinnerScreen 
-            score={score}
+            score={level}
             showEntryForm={showEntryForm}
             onSave={handleSaveScore}
             onRestart={initializeGame}

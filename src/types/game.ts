@@ -11,6 +11,7 @@ export interface LetterState {
 
 export interface BadDotState {
   position: Position;
+  speed: number;
 }
 
 export interface Score {

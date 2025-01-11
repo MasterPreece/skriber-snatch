@@ -8,7 +8,7 @@ export const useGameState = () => {
   const [playerPos, setPlayerPos] = useState<Position>({ x: 30, y: 30 });
   const [letters, setLetters] = useState<LetterState[]>([]);
   const [isWinner, setIsWinner] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(30);
+  const [level, setLevel] = useState(1);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
@@ -16,25 +16,46 @@ export const useGameState = () => {
   const [showEntryForm, setShowEntryForm] = useState(false);
   const { toast } = useToast();
 
-  // Load scores from localStorage on initial render
   const [scores, setScores] = useState<Score[]>(() => {
     const savedScores = localStorage.getItem(STORAGE_KEY);
     return savedScores ? JSON.parse(savedScores) : [];
   });
 
-  const calculateScore = useCallback(() => {
-    const baseScore = Math.floor((timeLeft / 30) * 1000000);
-    return Math.max(0, baseScore);
-  }, [timeLeft]);
+  useEffect(() => {
+    if (gameStarted && !gameOver && !isWinner && letters.every(l => l.collected)) {
+      // Level completed, initialize next level
+      const chars = ["S", "K", "R", "I", "B", "E", "R"];
+      const newLetters = chars.map((char) => ({
+        char,
+        position: {
+          x: Math.floor(Math.random() * 300),
+          y: Math.floor(Math.random() * 300),
+        },
+        collected: false,
+      }));
+
+      const baseSpeed = 1 + (level * 0.5); // Increase speed with each level
+      const newBadDots: BadDotState[] = Array(level).fill(null).map(() => ({
+        position: {
+          x: Math.floor(Math.random() * 300),
+          y: Math.floor(Math.random() * 300),
+        },
+        speed: baseSpeed,
+      }));
+
+      setLetters(newLetters);
+      setBadDots(newBadDots);
+      setLevel(prev => prev + 1);
+    }
+  }, [letters, level, gameStarted, gameOver, isWinner]);
 
   const handleSaveScore = (alias: string) => {
     const newScore: Score = {
       alias,
-      score,
+      score: level,
       date: new Date().toISOString(),
     };
     
-    // Get existing scores from localStorage to ensure we have the latest data
     const existingScores = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
     const newScores = [...existingScores, newScore]
       .sort((a, b) => b.score - a.score)
@@ -43,12 +64,11 @@ export const useGameState = () => {
     setScores(newScores);
     setShowEntryForm(false);
     
-    // Save to localStorage
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newScores));
     
     toast({
       title: "Score Saved!",
-      description: `${alias} - ${score.toLocaleString()} points`,
+      description: `${alias} - Level ${level}`,
       duration: 3000,
     });
   };
@@ -60,8 +80,8 @@ export const useGameState = () => {
     setLetters,
     isWinner,
     setIsWinner,
-    timeLeft,
-    setTimeLeft,
+    level,
+    setLevel,
     score,
     setScore,
     gameOver,
@@ -74,6 +94,5 @@ export const useGameState = () => {
     showEntryForm,
     setShowEntryForm,
     handleSaveScore,
-    calculateScore
   };
 };

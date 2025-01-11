@@ -8,14 +8,13 @@ export const useGameLogic = (
   playerPos: Position,
   letters: LetterState[],
   badDots: BadDotState[],
-  timeLeft: number,
+  level: number,
   setLetters: (value: LetterState[] | ((prev: LetterState[]) => LetterState[])) => void,
   setBadDots: (value: BadDotState[] | ((prev: BadDotState[]) => BadDotState[])) => void,
   setIsWinner: (winner: boolean) => void,
   setGameOver: (over: boolean) => void,
-  setTimeLeft: (value: number | ((prev: number) => number)) => void,
+  setLevel: (value: number) => void,
   setScore: (score: number) => void,
-  calculateScore: () => number
 ) => {
   const checkCollision = useCallback(() => {
     setLetters((prevLetters: LetterState[]) => {
@@ -38,26 +37,13 @@ export const useGameLogic = (
       });
 
       if (allCollected) {
-        setIsWinner(true);
-        setScore(calculateScore());
+        setLevel(level + 1);
+        setScore(level);
       }
 
       return newLetters;
     });
-  }, [playerPos, calculateScore, setLetters, setIsWinner, setScore]);
-
-  // Timer logic - Updated to use 100ms intervals instead of 1000ms
-  useEffect(() => {
-    if (timeLeft > 0 && !isWinner && gameStarted && !gameOver) {
-      const timer = setInterval(() => {
-        setTimeLeft((prev: number) => Math.max(0, prev - 0.1));
-      }, 100);
-
-      return () => clearInterval(timer);
-    } else if (timeLeft === 0 && !isWinner && gameStarted) {
-      setGameOver(true);
-    }
-  }, [timeLeft, isWinner, gameStarted, gameOver, setTimeLeft, setGameOver]);
+  }, [playerPos, level, setLetters, setLevel, setScore]);
 
   // Bad dots movement logic
   useEffect(() => {
@@ -72,14 +58,16 @@ export const useGameLogic = (
           
           if (distance < 1) return dot;
 
-          const newX = dot.position.x + (dx / distance);
-          const newY = dot.position.y + (dy / distance);
+          const speed = dot.speed;
+          const newX = dot.position.x + (dx / distance) * speed;
+          const newY = dot.position.y + (dy / distance) * speed;
 
           return {
             position: {
               x: Math.max(0, Math.min(300, newX)),
               y: Math.max(0, Math.min(300, newY)),
             },
+            speed,
           };
         })
       );
