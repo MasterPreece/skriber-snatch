@@ -37,8 +37,9 @@ export const useGameLogic = (
       });
 
       if (allCollected) {
-        setLevel(level + 1);
-        setScore(level + 1); // Update score to match the new level
+        const nextLevel = level + 1;
+        setLevel(nextLevel);
+        setScore(nextLevel);
       }
 
       return newLetters;
