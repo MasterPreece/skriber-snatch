@@ -5,7 +5,6 @@ import Player from "./Player";
 import Letter from "./Letter";
 import WinnerText from "./WinnerText";
 import BadDot from "./BadDot";
-import Leaderboard from "./Leaderboard";
 import LeaderboardEntry from "./LeaderboardEntry";
 import MobileControls from "./MobileControls";
 import { useGameState } from "../hooks/useGameState";
@@ -32,7 +31,6 @@ const GameBoard = () => {
     setGameStarted,
     badDots,
     setBadDots,
-    scores,
     showEntryForm,
     handleSaveScore,
     calculateScore
@@ -181,10 +179,6 @@ const GameBoard = () => {
           <MobileControls onMove={handleMobileMove} />
         </div>
       )}
-      
-      <div className="mt-8 w-full max-w-md">
-        <Leaderboard scores={scores} />
-      </div>
       <Toaster />
     </div>
   );
