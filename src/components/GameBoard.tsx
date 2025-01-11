@@ -137,7 +137,10 @@ const GameBoard = () => {
         )}
         
         {gameOver && !isWinner && (
-          <GameOverScreen onRestart={initializeGame} />
+          <GameOverScreen 
+            onRestart={initializeGame}
+            level={level}
+          />
         )}
       </div>
       

@@ -3,13 +3,14 @@ import { Button } from "@/components/ui/button";
 
 interface GameOverScreenProps {
   onRestart: () => void;
+  level: number;
 }
 
-const GameOverScreen = ({ onRestart }: GameOverScreenProps) => {
+const GameOverScreen = ({ onRestart, level }: GameOverScreenProps) => {
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
-      <div className="text-3xl font-bold text-red-500 text-center px-4">
-        You got FREED
+      <div className="text-3xl font-bold text-purple-500 text-center px-4">
+        You reached Level {level}!
       </div>
       <Button 
         onClick={onRestart}
