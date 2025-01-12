@@ -24,3 +24,8 @@ export interface SnowflakeState {
   position: Position;
   collected: boolean;
 }
+
+export interface EggState {
+  position: Position;
+  collected: boolean;
+}

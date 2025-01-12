@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useRef } from 'react';
-import type { Position, LetterState, BadDotState, SnowflakeState } from '../types/game';
+import type { Position, LetterState, BadDotState, SnowflakeState, EggState } from '../types/game';
 
 export const useGameLogic = (
   gameStarted: boolean,
@@ -17,9 +17,13 @@ export const useGameLogic = (
   setScore: (score: number) => void,
   snowflake: SnowflakeState,
   setSnowflake: (value: SnowflakeState) => void,
+  egg: EggState,
+  setEgg: (value: EggState) => void,
+  setIsEggActive: (active: boolean) => void,
 ) => {
   const canBadDotsMove = useRef(true);
   const isFrozen = useRef(false);
+  const isEggPowerActive = useRef(false);
 
   const getRandomPosition = (): Position => ({
     x: Math.floor(Math.random() * 350),
@@ -47,19 +51,45 @@ export const useGameLogic = (
       collected: false,
     };
 
+    const newEgg: EggState = {
+      position: getRandomPosition(),
+      collected: false,
+    };
+
     setLetters(newLetters);
     setBadDots(newBadDots);
     setSnowflake(newSnowflake);
+    setEgg(newEgg);
+    setIsEggActive(false);
     
     canBadDotsMove.current = false;
     setTimeout(() => {
       canBadDotsMove.current = true;
     }, 500);
-  }, [level, setLetters, setBadDots, setSnowflake]);
+  }, [level, setLetters, setBadDots, setSnowflake, setEgg, setIsEggActive]);
 
   const checkCollision = useCallback(() => {
     if (!gameStarted || gameOver || isWinner) return;
 
+    // Check egg collision
+    if (level % 5 === 0 && !egg.collected) {
+      const eggDistance = Math.sqrt(
+        Math.pow(playerPos.x - egg.position.x, 2) +
+        Math.pow(playerPos.y - egg.position.y, 2)
+      );
+      
+      if (eggDistance < 30) {
+        setEgg({ ...egg, collected: true });
+        isEggPowerActive.current = true;
+        setIsEggActive(true);
+        setTimeout(() => {
+          isEggPowerActive.current = false;
+          setIsEggActive(false);
+        }, 5000);
+      }
+    }
+
+    // Check snowflake collision
     if (!snowflake.collected) {
       const snowflakeDistance = Math.sqrt(
         Math.pow(playerPos.x - snowflake.position.x, 2) +
@@ -101,7 +131,7 @@ export const useGameLogic = (
         setTimeout(() => initializeLevel(), 100);
       }
     }
-  }, [playerPos, level, letters, gameStarted, gameOver, isWinner, setLetters, setLevel, setScore, initializeLevel, snowflake, setSnowflake]);
+  }, [playerPos, level, letters, gameStarted, gameOver, isWinner, setLetters, setLevel, setScore, initializeLevel, snowflake, setSnowflake, egg, setEgg, setIsEggActive]);
 
   useEffect(() => {
     if (gameStarted && !gameOver && !isWinner) {
@@ -114,13 +144,18 @@ export const useGameLogic = (
 
     const moveInterval = setInterval(() => {
       const newBadDots = badDots.map((dot) => {
-        const dx = playerPos.x - dot.position.x;
-        const dy = playerPos.y - dot.position.y;
+        const dx = isEggPowerActive.current 
+          ? dot.position.x - playerPos.x  // Run away from player
+          : playerPos.x - dot.position.x; // Move towards player
+        const dy = isEggPowerActive.current
+          ? dot.position.y - playerPos.y  // Run away from player
+          : playerPos.y - dot.position.y; // Move towards player
+        
         const distance = Math.sqrt(dx * dx + dy * dy);
         
         if (distance < 1) return dot;
 
-        const speed = dot.speed;
+        const speed = dot.speed * (isEggPowerActive.current ? 0.5 : 1); // Slower when running away
         const newX = dot.position.x + (dx / distance) * speed;
         const newY = dot.position.y + (dy / distance) * speed;
 
@@ -143,6 +178,8 @@ export const useGameLogic = (
     if (!gameStarted || gameOver || isWinner) return;
 
     const checkBadDotCollision = () => {
+      if (isEggPowerActive.current) return; // Can't die while egg power is active
+      
       const collision = badDots.some((dot) => {
         const distance = Math.sqrt(
           Math.pow(playerPos.x - dot.position.x - 32, 2) +

@@ -11,7 +11,7 @@ import { useGameInitialization } from "../hooks/useGameInitialization";
 import { useGameLogic } from "../hooks/useGameLogic";
 import { usePlayerMovement } from "../hooks/usePlayerMovement";
 import { useIsMobile } from "../hooks/use-mobile";
-import type { SnowflakeState } from "../types/game";
+import type { SnowflakeState, EggState } from "../types/game";
 
 const GameBoard = () => {
   const {
@@ -42,6 +42,13 @@ const GameBoard = () => {
     collected: false,
   });
 
+  const [egg, setEgg] = React.useState<EggState>({
+    position: { x: 0, y: 0 },
+    collected: false,
+  });
+
+  const [isEggActive, setIsEggActive] = React.useState(false);
+
   const canMoveRef = React.useRef(true);
 
   const { initializeGame } = useGameInitialization(
@@ -66,6 +73,8 @@ const GameBoard = () => {
     setPlayerPos({ x: 30, y: 30 });
     setShowEntryForm(false);
     setSnowflake({ position: { x: 0, y: 0 }, collected: false });
+    setEgg({ position: { x: 0, y: 0 }, collected: false });
+    setIsEggActive(false);
   };
 
   const { checkCollision } = useGameLogic(
@@ -83,7 +92,10 @@ const GameBoard = () => {
     setLevel,
     setScore,
     snowflake,
-    setSnowflake
+    setSnowflake,
+    egg,
+    setEgg,
+    setIsEggActive
   );
 
   usePlayerMovement(
@@ -95,7 +107,6 @@ const GameBoard = () => {
 
   const isMobile = useIsMobile();
 
-  // Reset canMove when level changes
   React.useEffect(() => {
     if (gameStarted && !gameOver && !isWinner) {
       canMoveRef.current = false;
@@ -136,12 +147,10 @@ const GameBoard = () => {
     checkCollision();
   }, [playerPos, checkCollision]);
 
-  // Reset game when component mounts
   React.useEffect(() => {
     resetGame();
   }, []);
 
-  // Show entry form when game is won
   React.useEffect(() => {
     if (gameOver && !isWinner) {
       setShowEntryForm(true);
@@ -164,6 +173,8 @@ const GameBoard = () => {
             badDots={badDots}
             level={level}
             snowflake={snowflake}
+            egg={egg}
+            isEggActive={isEggActive}
           />
         )}
         

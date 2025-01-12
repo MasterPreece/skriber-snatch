@@ -5,10 +5,11 @@ interface PlayerProps {
     x: number;
     y: number;
   };
-  emoji: string;
+  emoji?: string;
+  imageUrl?: string;
 }
 
-const Player = ({ position, emoji }: PlayerProps) => {
+const Player = ({ position, emoji, imageUrl }: PlayerProps) => {
   return (
     <div
       className="absolute w-6 h-6 flex items-center justify-center transition-all duration-75 ease-linear"
@@ -16,7 +17,15 @@ const Player = ({ position, emoji }: PlayerProps) => {
         transform: `translate(${position.x}px, ${position.y}px)`,
       }}
     >
-      <span className="text-[1.4em]">{emoji}</span>
+      {imageUrl ? (
+        <img 
+          src={imageUrl} 
+          alt="Player" 
+          className="w-8 h-8 rounded-full object-cover"
+        />
+      ) : (
+        <span className="text-[1.4em]">{emoji}</span>
+      )}
     </div>
   );
 };
