@@ -24,6 +24,7 @@ export const useGameLogic = (
   const canBadDotsMove = useRef(true);
   const isFrozen = useRef(false);
   const isEggPowerActive = useRef(false);
+  const isImmune = useRef(false);
 
   const getRandomPosition = (): Position => ({
     x: Math.floor(Math.random() * 350),
@@ -62,6 +63,12 @@ export const useGameLogic = (
     setEgg(newEgg);
     setIsEggActive(false);
     
+    // Set immunity at the start of each level
+    isImmune.current = true;
+    setTimeout(() => {
+      isImmune.current = false;
+    }, 250); // 0.25 seconds
+
     canBadDotsMove.current = false;
     setTimeout(() => {
       canBadDotsMove.current = true;
@@ -178,7 +185,7 @@ export const useGameLogic = (
     if (!gameStarted || gameOver || isWinner) return;
 
     const checkBadDotCollision = () => {
-      if (isEggPowerActive.current) return; // Can't die while egg power is active
+      if (isEggPowerActive.current || isImmune.current) return; // Can't die while egg power is active or during immunity
       
       const collision = badDots.some((dot) => {
         const distance = Math.sqrt(
